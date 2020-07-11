@@ -1,0 +1,29 @@
+{
+  "name": "hapi",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "postinstall": "node test.js"
+  },
+  "gypfile": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/worldmaking/node-hapi.git"
+  },
+  "keywords": [
+    "node.js",
+    "houdini",
+    "engine"
+  ],
+  "author": "Alice Lab @ Yorku.ca",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/worldmaking/node-hapi/issues"
+  },
+  "homepage": "https://github.com/worldmaking/node-hapi#readme",
+  "dependencies": {
+    "bindings": "^1.5.0"
+  }
+}
