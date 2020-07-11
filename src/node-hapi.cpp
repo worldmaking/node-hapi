@@ -9,7 +9,7 @@
 #define ENSURE_SUCCESS( result ) \
 if ( (result) != HAPI_RESULT_SUCCESS ) \
 { \
-    std::cerr << "Failure at " << __FILE__ << ": " << __LINE__ << std::endl; \
+    std::cerr << "Node-HAPI Failure at " << __FILE__ << ": " << __LINE__ << std::endl; \
     std::cerr << getLastError() << std::endl; \
     exit( 1 ); \
 }
@@ -36,9 +36,11 @@ napi_value test(napi_env env, napi_callback_info info) {
 
 napi_value init(napi_env env, napi_value exports) {
 
-	// int major=0;
-	// HAPI_GetEnvInt(HAPI_ENVINT_VERSION_HOUDINI_MAJOR, &major);
-	// printf("Houdini version %d\n", major);	
+	int major=0, minor=0, rev=0;
+	HAPI_GetEnvInt(HAPI_ENVINT_VERSION_HOUDINI_MAJOR, &major);
+	HAPI_GetEnvInt(HAPI_ENVINT_VERSION_HOUDINI_MINOR, &minor);
+	HAPI_GetEnvInt(HAPI_ENVINT_VERSION_HOUDINI_BUILD, &rev);
+	printf("Node-HAPI built for Houdini version %d.%d.%d\n", major, minor, rev);	
 
 	// // start up Houdini:
 	// HAPI_DECL HAPI_Initialize( const HAPI_Session * session,
@@ -51,9 +53,9 @@ napi_value init(napi_env env, napi_value exports) {
     //                        const char * image_dso_search_path,
     //                        const char * audio_dso_search_path );
 	HAPI_CookOptions cookoptions = HAPI_CookOptions_Create();
-	//HAPI_Session session;
-	//HAPI_CreateInProcessSession(&session);
-	ENSURE_SUCCESS( HAPI_Initialize(nullptr, &cookoptions, false, -1, nullptr, nullptr, nullptr, nullptr, nullptr));
+	HAPI_Session session;
+	HAPI_CreateInProcessSession(&session);
+	ENSURE_SUCCESS( HAPI_Initialize(&session, &cookoptions, false, -1, nullptr, nullptr, nullptr, nullptr, nullptr));
 
 	napi_status status;
 	napi_property_descriptor properties[] = {

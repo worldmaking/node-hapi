@@ -13,13 +13,19 @@
 					],
 					'library_dirs': [],
 					'libraries': [
-						'C:/Program Files/Side Effects Software/Houdini 18.0.499/custom/houdini/dsolib/libHAPI.lib'
+						'C:/Program Files/Side Effects Software/Houdini 18.0.499/custom/houdini/dsolib/libHAPIL.lib'
 					],
 					'defines' : [
 						'WIN32_LEAN_AND_MEAN',
 						'VC_EXTRALEAN'
 					],
 					'msvs_settings' : {
+						'VCCLCompilerTool' : {
+							'AdditionalOptions' : ['/Ox', '/EHsc']
+						},
+						'VCLinkerTool' : {
+							'AdditionalOptions' : []
+						},
 					},
 					
 				}],
