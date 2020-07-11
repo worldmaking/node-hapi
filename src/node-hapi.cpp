@@ -27,6 +27,11 @@ static std::string getLastError() {
     return result;
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+
+// just making it global for now; may make it into a separate object at some point.
+HAPI_Session session;
+
 napi_value test(napi_env env, napi_callback_info info) {
 	napi_status status = napi_ok;
 	//napi_value args[1];
@@ -53,7 +58,7 @@ napi_value init(napi_env env, napi_value exports) {
     //                        const char * image_dso_search_path,
     //                        const char * audio_dso_search_path );
 	HAPI_CookOptions cookoptions = HAPI_CookOptions_Create();
-	HAPI_Session session;
+	
 	HAPI_CreateInProcessSession(&session);
 	ENSURE_SUCCESS( HAPI_Initialize(&session, &cookoptions, false, -1, nullptr, nullptr, nullptr, nullptr, nullptr));
 

@@ -7,4 +7,9 @@ process.env.PATH = `${HFS}\\bin;${process.env.PATH}`
 const hapi = require('bindings')('hapi.node');
 
 console.log(hapi.test())
+
+setTimeout(()=>{
+	console.log("chao")
+}, 100000)
+
 console.log("ok")

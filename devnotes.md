@@ -2,11 +2,9 @@ https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__compiling_sam
 
 cl /Zi /EHsc /DEBUG /I "<path to Houdini install location>\toolkit\include" source/materials.cpp "<path to Houdini install location>\custom\houdini\dsolib\libHAPIL.lib"
 
+1. set process.env (process environment variable) to add the houdini install to the system %PATH% -- that way it can find whatever dlls etc. it needs. I did that in the "test.js" right before loading the binary module.
+2. Use libHAPIL.lib not libHAPI.lib -- the latter tries to host the engine directly (probably hitting license issues), the former loads an IPC shim that lets us talk to the engine as a separate process, but is otherwise equivalent. Maybe we might need to revisit this at some point, we'll see. 
 
-
-
-
-if you need to copy all dlls from a folder to the build/release:
 
 'msvs_settings' : {
 						'VCCLCompilerTool' : {
@@ -18,6 +16,7 @@ if you need to copy all dlls from a folder to the build/release:
 					},
 
 
+if you need to copy all dlls from a folder to the build/release:
 'copies': [
 						{
 							'destination': './build/Release/',
