@@ -276,6 +276,8 @@ napi_value test(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
     
     ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "geometry.hip", false ) );
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "geometry.obj" ) );
+    	
     
 	// HAPI_Cleanup( &session );
     // return 0;
