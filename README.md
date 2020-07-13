@@ -1,8 +1,8 @@
 # node-hapi
 
-### useage for webxr - webgl 
-# node-gyp rebuild
-# nodemon ./server.js
+## useage for webxr - webgl 
+### node-gyp rebuild
+### nodemon ./server.js
 
-### useage for general testing
-# npm install
+## useage for general testing
+### npm install
