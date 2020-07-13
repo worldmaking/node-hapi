@@ -1,5 +1,6 @@
 build/
 ignored/
+backup/
 
 # Logs
 logs
@@ -109,3 +110,6 @@ dist
 # Other
 tips_tricks.txt
 node-api-TESTING.js
+geometry.hip
+geometry.hdanc
+triangle_out

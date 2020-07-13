@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 
-import { OBJLoader } from './client/js/OBJLoader.js';
+import { OBJLoader } from './js/OBJLoader.js';
+
+// useage
+// node -r esm obj2three.js model.obj
 
 if ( process.argv.length <= 2 ) {
 

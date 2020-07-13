@@ -276,7 +276,7 @@ napi_value test(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
     
     ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "geometry.hip", false ) );
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "geometry.obj" ) );
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "client/geometry.obj" ) );
     	
     
 	// HAPI_Cleanup( &session );
@@ -377,9 +377,9 @@ napi_value load(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_GetAssetInfo( &session, nodeId, &assetInfo ) );
     printCompleteNodeInfo( session, nodeId, assetInfo );
     
-    char in;
-    std::cout << "Press keys to exit." << std::endl;
-    std::cin >> in;
+    //char in;
+    //std::cout << "Press keys to exit." << std::endl;
+    //std::cin >> in;
     
     // HAPI_Cleanup( &session );
     // return 0;
