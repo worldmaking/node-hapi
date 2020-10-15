@@ -1,7 +1,11 @@
 #include "node-api-helpers.h"
 
 #include "HAPI/HAPI.h"
+//#include "HAPI/HAPI_API.h"
+//#include "HAPI/HAPI_Common.h"
+//#include "HAPI/HAPI_Helpers.h"
 #include "HAPI/HAPI_Version.h"
+
 #include <iostream>
 #include <string>
 #include <vector>

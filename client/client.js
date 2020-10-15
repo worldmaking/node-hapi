@@ -5,6 +5,9 @@ import { VRButton } from './js/VRButton.js';
 //import { EnterXRButton } from './js/webxr-button.js';
 //let EnterXRButton = new window.XRDeviceButton;
 
+const { spawn, exec, execFile } = require('child_process');
+const { spawnSync, execSync, execFileSync } = require( 'child_process' );
+
 let state = null;
 let sock;
 
@@ -206,8 +209,29 @@ function init() {
 
 
   ////////////////////
-  // get triangle from houdini .obj output ?
+  // let match;
+  // // crawl directory for .obj file(s)
+  // // match == .obj
+  // if(match) {
+  // try {
+      
+  //   if () {
+  //     // useage
+  //     // node -r esm obj2three.js model.obj
+  //     spawn('node', '-r esm' ['./obj2three.js', match])
+  //     //console.log("HC05_1", count);  
+  //   }
+  // } catch (error) {
+  //   console.log("error: ", error);  
+  // }
+  ////////////////////
 
+
+  //
+
+
+  ////////////////////
+  // get triangle from houdini .obj output ?
   var loader = new THREE.ObjectLoader();
 
   loader.load(
@@ -228,7 +252,7 @@ function init() {
 
     // onError callback
     function ( err ) {
-      console.error( 'An error happened' );
+      console.error( 'An error happened', err );
     }
   );
 

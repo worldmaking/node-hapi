@@ -3,6 +3,13 @@ import path from 'path';
 
 import { OBJLoader } from './js/OBJLoader.js';
 
+// // mymodule.js
+// module.exports = {
+// 	hello: function() {
+// 		 return "Hello";
+// 	}
+// }
+
 // useage
 // node -r esm obj2three.js model.obj
 
