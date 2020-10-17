@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon server.js --ignore 'scenes/'",
     "install": "node-gyp rebuild",
     "postinstall": "node test.js"
   },

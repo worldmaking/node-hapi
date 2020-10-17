@@ -1,10 +1,20 @@
 #include "node-api-helpers.h"
 
 #include "HAPI/HAPI.h"
-//#include "HAPI/HAPI_API.h"
-//#include "HAPI/HAPI_Common.h"
-//#include "HAPI/HAPI_Helpers.h"
+#include "HAPI/HAPI_API.h"
+#include "HAPI/HAPI_Common.h"
+#include "HAPI/HAPI_Helpers.h"
 #include "HAPI/HAPI_Version.h"
+
+#include "GLTF/GLTF_API.h"
+// fatal error C1189: #error:  "You must compile with the /GR switch (RTTI)
+// need to work out why all the following fail build
+// #include "GLTF/GLTF_Loader.h"
+// #include "GLTF/GLTF_Types.h"
+// #include "GLTF/GLTF_Util.h"
+// #include "GLTF/GLTF_Cache.h"
+// #include "GLTF/GLTF_GeoLoader.h"
+
 
 #include <iostream>
 #include <string>
@@ -279,8 +289,8 @@ napi_value test(napi_env env, napi_callback_info info) {
     
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
     
-    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "geometry.hip", false ) );
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "client/geometry.obj" ) );
+    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/triangle.obj" ) );
     	
     
 	// HAPI_Cleanup( &session );
@@ -338,7 +348,8 @@ napi_value testPoint(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_SetAttributeFloatData( &session, sopNodeId, 0, "P", &newNodePointInfo, positions, 0, 8 ) );
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, sopNodeId ) );
     
-    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "point_cloud.hip", false ) );
+    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/point_cloud.hip", false ) );
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/point_cloud.obj" ) );
 
     // HAPI_Cleanup( &session );
     // return 0;
@@ -352,7 +363,7 @@ napi_value load(napi_env env, napi_callback_info info) {
     napi_value result = nullptr;
 
     HAPI_AssetLibraryId assetLibId;
-    ENSURE_SUCCESS( HAPI_LoadAssetLibraryFromFile( &session, "geometry.hdanc", true, &assetLibId ) );
+    ENSURE_SUCCESS( HAPI_LoadAssetLibraryFromFile( &session, "scenes/geometry.hdanc", true, &assetLibId ) );
     int assetCount;
     ENSURE_SUCCESS( HAPI_GetAvailableAssetCount( &session, assetLibId, &assetCount ) );
     if (assetCount > 1)

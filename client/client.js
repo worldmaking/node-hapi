@@ -1,13 +1,17 @@
 import * as THREE from './js/three.module.js';
+
 import { OrbitControls } from './js/OrbitControls.js';
 import { TubePainter } from './js/TubePainter.js';
 import { VRButton } from './js/VRButton.js';
+//import { OBJExporter } from './js/OBJExporter.js';
+
+// import fs from 'fs';
+// import path from 'path';
+
 //import { EnterXRButton } from './js/webxr-button.js';
 //let EnterXRButton = new window.XRDeviceButton;
 
-const { spawn, exec, execFile } = require('child_process');
-const { spawnSync, execSync, execFileSync } = require( 'child_process' );
-
+//  //*************************************** // SERVER // ********************************************//
 let state = null;
 let sock;
 
@@ -16,7 +20,8 @@ let state_div = document.getElementById( "state" );
 
 let msgs = [];
 
-//  //*************************************** // SERVER // ********************************************//
+//
+
 function write( ...args ) {
 
   if( msgs.length > 15 ) {
@@ -138,20 +143,28 @@ function connect_to_server( opt, log ) {
 	return self;
 }
 
-//  //*************************************** // INITIALIZE // ********************************************//
 
-var container;
-var camera, scene, renderer;
-var controller1, controller2;
+//  //************************************** // INITIALIZE // *****************************************//
+let container;
+let camera, scene, renderer;
 
-var cursor = new THREE.Vector3();
+let controller1, controller2;
+let painter1, painter2;
 
-var controls;
+let cursor = new THREE.Vector3();
 
-init();
-animate();
+let controls;
 
-function init() {
+const mixers = [];
+const clock = new THREE.Clock();
+
+const regEx_INI = /(\/*.json)/;
+const regEx_HOU = /(\/*_HOU.json)/;
+const regEx_GPT = /(\/*_GPT.json)/;
+
+//
+
+function initialize() {
 
   container = document.createElement( 'div' );
   document.body.appendChild( container );
@@ -159,12 +172,54 @@ function init() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color( 0x222222 );
 
+  createCamera();
+  createControls();
+  createLights();
+  createBaseScene();
+  createRenderer();
+  //loadModels_OBJ();// _GLTF _OBJ
+  setControllers();
+
+  //
+
+  try {
+    sock = connect_to_server( {}, write );
+  } catch ( e ) {
+    console.error( e );
+  }
+
+  play();
+
+
+}
+
+function createCamera() {
+
   camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 50 );
   camera.position.set( 0, 1.6, 3 );
 
+}
+
+function createControls() {
+  
   controls = new OrbitControls( camera, container );
   controls.target.set( 0, 1.6, 0 );
   controls.update();
+
+}
+
+function createLights() {
+
+  const ambientLight = new THREE.HemisphereLight( 0xddeeff, 0x0f0e0d, 5 );
+
+  const mainLight = new THREE.DirectionalLight( 0xffffff, 5 );
+  mainLight.position.set( 10, 10, 10 );
+
+  scene.add( ambientLight, mainLight );
+
+}
+
+function createBaseScene() {
 
   var geometry = new THREE.BoxBufferGeometry( 0.5, 0.8, 0.5 );
   var material = new THREE.MeshStandardMaterial( {
@@ -172,7 +227,7 @@ function init() {
     roughness: 1.0,
     metalness: 0.0
   } );
-  var table = new THREE.Mesh( geometry, material );
+  let table = new THREE.Mesh( geometry, material );
   table.position.y = 0.35;
   table.position.z = 0.85;
   scene.add( table );
@@ -183,172 +238,273 @@ function init() {
     roughness: 1.0,
     metalness: 0.0
   } );
-  var floor = new THREE.Mesh( geometry, material );
+  let floor = new THREE.Mesh( geometry, material );
   floor.rotation.x = - Math.PI / 2;
   scene.add( floor );
 
-  var grid = new THREE.GridHelper( 10, 20, 0x111111, 0x111111 );
+  let grid = new THREE.GridHelper( 10, 20, 0x111111, 0x111111 );
   // grid.material.depthTest = false; // avoid z-fighting
   scene.add( grid );
 
-  scene.add( new THREE.HemisphereLight( 0x888877, 0x777788 ) );
-
-  var light = new THREE.DirectionalLight( 0xffffff, 0.5 );
-  light.position.set( 0, 4, 0 );
-  scene.add( light );
-
   //
 
-  var painter1 = new TubePainter();
+  painter1 = new TubePainter();
   scene.add( painter1.mesh );
 
-  var painter2 = new TubePainter();
+  painter2 = new TubePainter();
   scene.add( painter2.mesh );
 
-  //
+}
+
+function setControllers() {
+    // controllers
+
+    function onSelectStart() {
+
+      this.userData.isSelecting = true;
+  
+    }
+  
+    function onSelectEnd() {
+  
+      this.userData.isSelecting = false;
+  
+    }
+  
+    function onSqueezeStart() {
+  
+      this.userData.isSqueezing = true;
+      this.userData.positionAtSqueezeStart = this.position.y;
+      this.userData.scaleAtSqueezeStart = this.scale.x;
+  
+    }
+  
+    function onSqueezeEnd() {
+  
+      this.userData.isSqueezing = false;
+  
+    }
+  
+    controller1 = renderer.xr.getController( 0 );
+    controller1.addEventListener( 'selectstart', onSelectStart );
+    controller1.addEventListener( 'selectend', onSelectEnd );
+    controller1.addEventListener( 'squeezestart', onSqueezeStart );
+    controller1.addEventListener( 'squeezeend', onSqueezeEnd );
+    controller1.userData.painter = painter1;
+    scene.add( controller1 );
+  
+    controller2 = renderer.xr.getController( 1 );
+    controller2.addEventListener( 'selectstart', onSelectStart );
+    controller2.addEventListener( 'selectend', onSelectEnd );
+    controller2.addEventListener( 'squeezestart', onSqueezeStart );
+    controller2.addEventListener( 'squeezeend', onSqueezeEnd );
+    controller2.userData.painter = painter2;
+    scene.add( controller2 );
+  
+    //
+  
+    let geometry = new THREE.CylinderBufferGeometry( 0.01, 0.02, 0.08, 5 );
+    geometry.rotateX( - Math.PI / 2 );
+    let material = new THREE.MeshStandardMaterial( { flatShading: true } );
+    let mesh = new THREE.Mesh( geometry, material );
+  
+    let pivot = new THREE.Mesh( new THREE.IcosahedronBufferGeometry( 0.01, 2 ) );
+    pivot.name = 'pivot';
+    pivot.position.z = - 0.05;
+    mesh.add( pivot );
+  
+    controller1.add( mesh.clone() );
+    controller2.add( mesh.clone() );
+
+}
+
+function createRenderer() {
+
+  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer.setSize( container.clientWidth, container.clientHeight );
+  //renderer.setSize( window.innerWidth, window.innerHeight );
+  
+  renderer.setPixelRatio( window.devicePixelRatio );
+  
+  renderer.gammaFactor = 2.2;
+  renderer.gammaOutput = true;
+
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  
+  renderer.xr.enabled = true;
+
+  container.appendChild( renderer.domElement );
+  document.body.appendChild( VRButton.createButton( renderer ) );
+  //document.body.appendChild( EnterXRButton.createButton( renderer ) );
 
 
-  ////////////////////
-  // let match;
-  // // crawl directory for .obj file(s)
-  // // match == .obj
-  // if(match) {
-  // try {
-      
-  //   if () {
-  //     // useage
-  //     // node -r esm obj2three.js model.obj
-  //     spawn('node', '-r esm' ['./obj2three.js', match])
-  //     //console.log("HC05_1", count);  
-  //   }
-  // } catch (error) {
-  //   console.log("error: ", error);  
-  // }
-  ////////////////////
+}
 
+//
 
-  //
+function onWindowResize() {
 
+  camera.aspect = container.clientWidth / container.clientHeight;
+  //camera.aspect = window.innerWidth / window.innerHeight;
+  
+  // update the camera's frustum
+  camera.updateProjectionMatrix();
 
-  ////////////////////
-  // get triangle from houdini .obj output ?
-  var loader = new THREE.ObjectLoader();
+  renderer.setSize( container.clientWidth, container.clientHeight );
+  //renderer.setSize( window.innerWidth, window.innerHeight );
 
+}
+
+//
+
+function loadModels_OBJ() { //(file)
+  console.log('loading...');
+  // file to be an array? load multiple ?
+  const loader = new THREE.ObjectLoader();
   loader.load(
     // resource URL
-    "geometry.json",
-
+    'triangle.json',
+    //file,
+  
     // onLoad callback
     // Here the loaded data is assumed to be an object
     function ( obj ) {
       // Add the loaded object to the scene
       scene.add( obj );
     },
-
+  
     // onProgress callback
     function ( xhr ) {
       console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
-
+  
     // onError callback
     function ( err ) {
-      console.error( 'An error happened', err );
+      console.error( 'A load error happened', err );
     }
+
   );
 
+}
 
+function exportModels_OBJ() {
+  
+  const exporter = new OBJExporter();
 
-  ///////////////////
+  let result = exporter.parse( scene );
 
+  let file = 'scene/VR'
+  //const content = JSON.stringify( loader.parse( text ).toJSON(), parseNumber );
+  //fs.writeFileSync( file + '.obj', result, 'utf8' );
 
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.xr.enabled = true;
-  container.appendChild( renderer.domElement );
+}
 
-  document.body.appendChild( VRButton.createButton( renderer ) );
-  //document.body.appendChild( EnterXRButton.createButton( renderer ) );
+//
 
-  // controllers
+function loadModels_GLTF(file) {
 
-  function onSelectStart() {
+  const loader = new THREE.GLTFLoader();
+  // make file an array
 
-    this.userData.isSelecting = true;
+  // A reusable function to set up the models. We're passing in a position parameter
+  // so that they can be individually placed around the scene
+  const onLoad = ( gltf, position ) => {
 
-  }
+    const model = gltf.scene.children[ 0 ];
+    model.position.copy( position );
 
-  function onSelectEnd() {
+    const animation = gltf.animations[ 0 ];
 
-    this.userData.isSelecting = false;
+    const mixer = new THREE.AnimationMixer( model );
+    mixers.push( mixer );
 
-  }
+    const action = mixer.clipAction( animation );
+    action.play();
 
-  function onSqueezeStart() {
+    scene.add( model );
 
-    this.userData.isSqueezing = true;
-    this.userData.positionAtSqueezeStart = this.position.y;
-    this.userData.scaleAtSqueezeStart = this.scale.x;
+  };
 
-  }
+  // the loader will report the loading progress to this function
+  const onProgress = () => {};
 
-  function onSqueezeEnd() {
-
-    this.userData.isSqueezing = false;
-
-  }
-
-  controller1 = renderer.xr.getController( 0 );
-  controller1.addEventListener( 'selectstart', onSelectStart );
-  controller1.addEventListener( 'selectend', onSelectEnd );
-  controller1.addEventListener( 'squeezestart', onSqueezeStart );
-  controller1.addEventListener( 'squeezeend', onSqueezeEnd );
-  controller1.userData.painter = painter1;
-  scene.add( controller1 );
-
-  controller2 = renderer.xr.getController( 1 );
-  controller2.addEventListener( 'selectstart', onSelectStart );
-  controller2.addEventListener( 'selectend', onSelectEnd );
-  controller2.addEventListener( 'squeezestart', onSqueezeStart );
-  controller2.addEventListener( 'squeezeend', onSqueezeEnd );
-  controller2.userData.painter = painter2;
-  scene.add( controller2 );
+  // the loader will send any error messages to this function, and we'll log
+  // them to to console
+  const onError = ( errorMessage ) => { console.log( errorMessage ); };
 
   //
 
-  var geometry = new THREE.CylinderBufferGeometry( 0.01, 0.02, 0.08, 5 );
-  geometry.rotateX( - Math.PI / 2 );
-  var material = new THREE.MeshStandardMaterial( { flatShading: true } );
-  var mesh = new THREE.Mesh( geometry, material );
-
-  var pivot = new THREE.Mesh( new THREE.IcosahedronBufferGeometry( 0.01, 2 ) );
-  pivot.name = 'pivot';
-  pivot.position.z = - 0.05;
-  mesh.add( pivot );
-
-  controller1.add( mesh.clone() );
-  controller2.add( mesh.clone() );
-
-  //
-
-  window.addEventListener( 'resize', onWindowResize, false );
-
-  try {
-    sock = connect_to_server( {}, write );
-  } catch ( e ) {
-    console.error( e );
-  }
+  // load the first model. Each model is loaded asynchronously,
+  // so don't make any assumption about which one will finish loading first
+  const flamingoPosition = new THREE.Vector3( 7.5, 0, -10 );
+  //loader.load( 'models/Flamingo.glb', gltf => onLoad( gltf, flamingoPosition ), onProgress, onError );
 
 
 }
 
-function onWindowResize() {
+function exportModels_GLTF() {
 
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  console.log('export GLTF');
 
-  renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+//
+
+function checkForScenes(match) {
+
+  //joining path of directory 
+  //const directoryPath = 'cd ..\\scenes\\';
+  const directoryPath = 'cd ..';
+  //const directoryPath = path.join(__dirname, 'scenes');
+
+  const regEx = match; // /(\/*.json)/;
+
+  try {
+    
+    //passsing directoryPath and callback function
+    //fs.readdir(directoryPath, function (err, files) {
+        
+      //handling error
+        if (err) {
+
+            return console.log('Unable to scan directory: ' + err);
+        
+          } 
+        
+        //listing all files using forEach
+        console.log(regEx);
+        
+        files.forEach(function (file) {
+            
+          // Do whatever you want to do with the file
+            let match = file.match(regEx);
+            
+            if ( match ) {
+              
+              console.log(`found new scene`, file);
+              
+              loadModels_OBJ(file);
+
+            } 
+
+        });
+
+    //});
+
+  } catch( error ) {
+
+    write( `file conversion error: ${error}` );
+
+  }    
+
+  
+}
+
+function respondToScenes() {
+  
+  console.log(`output threejs scene as GLTF to AI check folder`);
+  
+  exportModels_GLTF();
 
 }
 
@@ -386,17 +542,56 @@ function handleController( controller ) {
 
 }
 
-function animate() {
+//
 
-  renderer.setAnimationLoop( render );
+function play() {
+
+  renderer.setAnimationLoop( () => {
+
+    update();
+    render();
+
+  } );
 
 }
 
+function stop() {
+
+  renderer.setAnimationLoop( null );
+
+}
+
+// perform any updates to the scene, called once per frame
+// avoid heavy computation here
+function update() {
+
+  const delta = clock.getDelta();
+
+  // for ( const mixer of mixers ) {
+
+  //   mixer.update( delta );
+
+  // }
+
+}
+
+// render, or 'draw a still image', of the scene
 function render() {
 
   handleController( controller1 );
   handleController( controller2 );
 
+  //checkForScenes(regEx_INI);
+  //checkForScenes(regEx_HOU);
+  //checkForScenes(regEx_GPT);
+  
+  //respondToScenes();
+
   renderer.render( scene, camera );
+  //stop();
 
 }
+
+window.addEventListener( 'resize', onWindowResize, false );
+
+initialize();
