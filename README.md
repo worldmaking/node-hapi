@@ -3,7 +3,7 @@
 
 ## useage for webxr - webgl 
 ### node-gyp rebuild
-### nodemon ./server.js
+### npm start
 
 ## useage for general testing
 ### npm install
