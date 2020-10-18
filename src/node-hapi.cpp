@@ -19,6 +19,18 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <assert.h>
+#include <malloc.h>
+
+// a C++ struct to hold all the persistent JS objects we need for a Houdini session:
+// struct PersistentSessionData {
+//   HAPI_Session session;
+//   HAPI_CookOptions cookOptions;
+//   bool bUseInProcess = false;
+//   napi_env env;
+//   napi_ref sessionRef;
+//   //napi_ref onHandshakeRef, onSuccessRef, onFailRef, onDataRef, onRawRef, onDongleListRef, onDeviceListRef, onDeviceInfoRef, onSourcesListRef, onSourceInfoRef, onQueryRef;
+// };
 
 #define ENSURE_SUCCESS( result ) \
 if ( (result) != HAPI_RESULT_SUCCESS ) \
@@ -240,7 +252,6 @@ napi_value test(napi_env env, napi_callback_info info) {
 	napi_status status = napi_ok;
 	napi_value result = nullptr;
 
-
 	// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html
     HAPI_NodeId newNode;
     ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Triangle" ) );
@@ -293,7 +304,7 @@ napi_value test(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/triangle.obj" ) );
     	
     
-	// HAPI_Cleanup( &session );
+	HAPI_Cleanup( &session );
     // return 0;
 
 	return (status == napi_ok) ? result : nullptr;
@@ -403,10 +414,26 @@ napi_value load(napi_env env, napi_callback_info info) {
 }
 
 
+// napi_value open(napi_env env, napi_callback_info info) {
+//   // create a PersistentSessionData to hold our JS functions etc. in for this session:
+//   PersistentSessionData * data = new PersistentSessionData;
+//   // start a session with Houdini
+//   //data->session = apolloOpenSession(0);
+//   data->env = env;
+//   // argument args[0] should be a JS object with all the handlers in it
+//   // we'll need to store references to them in our PersistentSessionData to prevent garbage collection
+//   napi_value handler;
+//   bool exists = false;
+//   // we will return a persistent object to talk to the session:
+//   napi_value sessionObject;
+//   assert(napi_create_object(env, &sessionObject) == napi_ok);
+//   //assert(napi_create_reference(env, sessionObject, 1, &data->sessionRef) == napi_ok);
+//   return sessionObject;
+// }
+
 void sessionCleanup(void * session) {
 	HAPI_Cleanup((HAPI_Session *)session);
 }
-
 
 napi_value init(napi_env env, napi_value exports) {
 
@@ -436,8 +463,8 @@ napi_value init(napi_env env, napi_value exports) {
         ENSURE_SUCCESS( HAPI_CreateThriftNamedPipeSession(&session, "hapi") );
     }
 
-	// // start up Houdini:
-	// HAPI_DECL HAPI_Initialize( const HAPI_Session * session,
+	  // // start up Houdini:
+	  // HAPI_DECL HAPI_Initialize( const HAPI_Session * session,
     //                        const HAPI_cookOptions * cook_options,
     //                        HAPI_Bool use_cooking_thread,
     //                        int cooking_thread_stack_size,

@@ -7,16 +7,16 @@
 				'src',
 			],
 			'conditions': [
-        		['OS=="win"', {
+        ['OS=="win"', {
 					'variables': {
 						'HFS': 'C:/Program Files/Side Effects Software/Houdini 18.0.499'
 					},
 					'include_dirs': [
-						'<(HFS)/toolkit/include/',
+						'<(HFS)/toolkit/include/'			
 					],
 					'library_dirs': [],
 					'libraries': [
-						'<(HFS)/custom/houdini/dsolib/libHAPIL.lib'
+						'<(HFS)/custom/houdini/dsolib/libHAPIL.lib',
 					],
 					'defines' : [
 						'WIN32_LEAN_AND_MEAN',
@@ -30,7 +30,6 @@
 							'AdditionalOptions' : []
 						},
 					},
-					
 				}],
         		['OS=="mac"', {
 

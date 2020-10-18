@@ -14,10 +14,20 @@ const PORT = 8080
 const client = new net.Socket()
 
 let state = {
-  devices: {},
+  files: {},
 }
 
 exports.state = state;
+
+//requiring path and fs modules
+const path = require('path');
+const fs = require('fs');
+//joining path of directory 
+const directoryPath = path.join(__dirname, 'scenes');
+//const executionPath = path.join();
+
+const { spawn, exec, execFile } = require('child_process');
+const { spawnSync, execSync, execFileSync } = require( 'child_process' );
 
 client.connect(PORT, HOST, function() {
 
@@ -30,25 +40,15 @@ client.connect(PORT, HOST, function() {
     
     // GPT will create the kind of data used and sent by these calls in and out of node-hapi.cpp
     console.log('test');
-    //hapi.test();
-    console.log('testPoint');
+    hapi.test();
+    //console.log('testPoint');
     //hapi.testPoint();
-    console.log('load');
+    //console.log('load');
     //hapi.load();    
 
     // setTimeout(()=>{
     // 	console.log("chao")
     // }, 100000)
-
-    //requiring path and fs modules
-    const path = require('path');
-    const fs = require('fs');
-    //joining path of directory 
-    const directoryPath = path.join(__dirname, 'scenes');
-    //const executionPath = path.join();
-
-    const { spawn, exec, execFile } = require('child_process');
-    const { spawnSync, execSync, execFileSync } = require( 'child_process' );
 
     let regEx = /(\/*.obj)/;
 
@@ -79,26 +79,15 @@ client.connect(PORT, HOST, function() {
                       //cwd: 'node-hapi/',
                       stdio: ['pipe', 'pipe', 'pipe']
                     });
-                  
-                  // convert.stdin.on('data', (data) => {
-                  //   console.log(`stdin: ${data}`);
-                  // });
-                  
-                  // convert.stderr.on('data', (data) => {
-                  //   console.log(`stderr: ${data}`);
-                  // });                  
-
-                  // convert.stdout.on('data', (data) => {
-                  //   console.log(`stdout: ${data}`);
-                  // });
-                  
-                  // convert.on('close', (code) => {
-                  //   console.log(`child process close all stdio with code ${code}`);
-                  // });
-                  
-                  // convert.on('exit', (code) => {
-                  //   console.log(`child process exited with code ${code}`);
-                  // });
+                    //state.file = convert;
+                    let b = path.basename(file, '.obj');
+                    let f = path.join('load', path.basename(file, '.obj'));
+                    //console.log(b);
+                    //console.log(f);
+                    //state.file[0] = f + '.json';//'load/triangle.json'
+                    
+                    //console.log(state.file[0]);
+                    //path.join(path.basename(file, '.obj'), '.json');
 
                 } catch (error) {
                   console.log(`error: `, error);
@@ -108,7 +97,7 @@ client.connect(PORT, HOST, function() {
           });
       });
     } catch( error ) {
-      write( `file conversion error: ${error}` );
+      client.write( `file conversion error: ${error}` );
     }  
 
 
@@ -139,3 +128,6 @@ client.connect(PORT, HOST, function() {
 
   console.log("ok")
   //client.write(Buffer.from(session.handshake(1)))
+
+  file = 'load/triangle.json';
+  console.log(exports.state);

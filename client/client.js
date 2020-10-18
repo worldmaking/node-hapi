@@ -4,6 +4,8 @@ import { OrbitControls } from './js/OrbitControls.js';
 import { TubePainter } from './js/TubePainter.js';
 import { VRButton } from './js/VRButton.js';
 //import { OBJExporter } from './js/OBJExporter.js';
+import { OBJLoader } from './js/OBJLoader.js';
+//import { GLTFLoader } from './js/GLTFLoader.js';
 
 // import fs from 'fs';
 // import path from 'path';
@@ -80,27 +82,29 @@ function connect_to_server( opt, log ) {
         //}
 
       } 
-      // else {
+      else {
   
-      //   let msg = e.data;
-			// 	let obj;
+        let msg = e.data;
+				let obj;
   
-      //   try {
+        try {
   
-      //     obj = JSON.parse( msg );
+          obj = JSON.parse( msg );
+          if ( obj.cmd == "load" ) {
   
-      //   } catch( e ) {}
-  
-      //   if ( obj.cmd == "newData" ) {
-  
-      //     state = obj.state;
-  
-			// 	} else {
+            state = obj.state;
+    
+          } else {
+            
+            log( "ws received", msg );
+    
+          }
           
-      //     log( "ws received", msg );
+        } catch( e ) {
+
+        }
   
-      //   }
-			// } 
+			} 
 		}
   
     self.socket.onclose = function( e ) {
@@ -147,13 +151,14 @@ function connect_to_server( opt, log ) {
 //  //************************************** // INITIALIZE // *****************************************//
 let container;
 let camera, scene, renderer;
+let table, floor, grid;
 
 let controller1, controller2;
 let painter1, painter2;
 
 let cursor = new THREE.Vector3();
 
-let controls;
+let controls, result;
 
 const mixers = [];
 const clock = new THREE.Clock();
@@ -166,6 +171,7 @@ const regEx_GPT = /(\/*_GPT.json)/;
 
 function initialize() {
 
+  //container = document.querySelector( '#scene-container' );
   container = document.createElement( 'div' );
   document.body.appendChild( container );
 
@@ -177,7 +183,7 @@ function initialize() {
   createLights();
   createBaseScene();
   createRenderer();
-  //loadModels_OBJ();// _GLTF _OBJ
+  // loadModels_OBJ();// _GLTF _OBJ
   setControllers();
 
   //
@@ -188,8 +194,37 @@ function initialize() {
     console.error( e );
   }
 
-  play();
 
+  // try{
+  //   sock.send("loadOBJ");
+  // } catch( e ) {
+  //   write( e );
+  // }
+
+  // if ( !state ) return;
+  //let file = state.file;
+
+  let model1, model2, model3;
+  
+  let p1 = loadModel('load/triangle.json').then(result => {  model1 = result.scene.children[0]; }).catch(err => console.error(err));
+  let p2 = loadModel('load/triangle.json').then(result => {  model2 = result.scene.children[0]; }).catch(err => console.error(err));
+  let p3 = loadModel('load/triangle.json').then(result => {  model3 = result.scene.children[0]; }).catch(err => console.error(err));
+
+  //if all Promises resolved 
+  Promise.all([p1,p2,p3]).then(() => {
+    //do something to the model
+    model1.position.set(0,0,0);
+    model2.position.set(1,2,1);
+    model3.position.set(0,2,2);
+
+    //add model to the scene
+    scene.add(model1);
+    scene.add(model2);
+    scene.add(model3);
+    
+    //continue the process
+    play();
+  });
 
 }
 
@@ -227,7 +262,7 @@ function createBaseScene() {
     roughness: 1.0,
     metalness: 0.0
   } );
-  let table = new THREE.Mesh( geometry, material );
+  table = new THREE.Mesh( geometry, material );
   table.position.y = 0.35;
   table.position.z = 0.85;
   scene.add( table );
@@ -238,11 +273,11 @@ function createBaseScene() {
     roughness: 1.0,
     metalness: 0.0
   } );
-  let floor = new THREE.Mesh( geometry, material );
+  floor = new THREE.Mesh( geometry, material );
   floor.rotation.x = - Math.PI / 2;
   scene.add( floor );
 
-  let grid = new THREE.GridHelper( 10, 20, 0x111111, 0x111111 );
+  grid = new THREE.GridHelper( 10, 20, 0x111111, 0x111111 );
   // grid.material.depthTest = false; // avoid z-fighting
   scene.add( grid );
 
@@ -253,6 +288,27 @@ function createBaseScene() {
 
   painter2 = new TubePainter();
   scene.add( painter2.mesh );
+
+}
+
+function createRenderer() {
+
+  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  //renderer.setSize( container.clientWidth, container.clientHeight );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  
+  renderer.setPixelRatio( window.devicePixelRatio );
+  
+  renderer.gammaFactor = 2.2;
+  renderer.gammaOutput = true;
+
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  
+  renderer.xr.enabled = true;
+
+  container.appendChild( renderer.domElement );
+  document.body.appendChild( VRButton.createButton( renderer ) );
+  //document.body.appendChild( EnterXRButton.createButton( renderer ) );
 
 }
 
@@ -318,54 +374,39 @@ function setControllers() {
 
 }
 
-function createRenderer() {
-
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setSize( container.clientWidth, container.clientHeight );
-  //renderer.setSize( window.innerWidth, window.innerHeight );
-  
-  renderer.setPixelRatio( window.devicePixelRatio );
-  
-  renderer.gammaFactor = 2.2;
-  renderer.gammaOutput = true;
-
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  
-  renderer.xr.enabled = true;
-
-  container.appendChild( renderer.domElement );
-  document.body.appendChild( VRButton.createButton( renderer ) );
-  //document.body.appendChild( EnterXRButton.createButton( renderer ) );
-
-
-}
-
 //
 
 function onWindowResize() {
 
-  camera.aspect = container.clientWidth / container.clientHeight;
-  //camera.aspect = window.innerWidth / window.innerHeight;
+  //camera.aspect = container.clientWidth / container.clientHeight;
+  camera.aspect = window.innerWidth / window.innerHeight;
   
   // update the camera's frustum
   camera.updateProjectionMatrix();
 
-  renderer.setSize( container.clientWidth, container.clientHeight );
-  //renderer.setSize( window.innerWidth, window.innerHeight );
+  //renderer.setSize( container.clientWidth, container.clientHeight );
+  renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
 
 //
 
-function loadModels_OBJ() { //(file)
-  console.log('loading...');
+function loadModel(url) {
+  return new Promise(resolve => {
+    new OBJLoader().load(url, resolve)
+  });
+}
+
+function loadModels_OBJ( f ) { //(file)
+  //console.log('loading...');
   // file to be an array? load multiple ?
-  const loader = new THREE.ObjectLoader();
+  const loader = new OBJLoader();
+  let file = 'load/' + f;
+
   loader.load(
-    // resource URL
-    'triangle.json',
-    //file,
-  
+    
+    file,
+   
     // onLoad callback
     // Here the loaded data is assumed to be an object
     function ( obj ) {
@@ -375,7 +416,7 @@ function loadModels_OBJ() { //(file)
   
     // onProgress callback
     function ( xhr ) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+      //console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
   
     // onError callback
@@ -401,44 +442,10 @@ function exportModels_OBJ() {
 
 //
 
-function loadModels_GLTF(file) {
+function loadModels_GLTF(f) {
 
-  const loader = new THREE.GLTFLoader();
-  // make file an array
-
-  // A reusable function to set up the models. We're passing in a position parameter
-  // so that they can be individually placed around the scene
-  const onLoad = ( gltf, position ) => {
-
-    const model = gltf.scene.children[ 0 ];
-    model.position.copy( position );
-
-    const animation = gltf.animations[ 0 ];
-
-    const mixer = new THREE.AnimationMixer( model );
-    mixers.push( mixer );
-
-    const action = mixer.clipAction( animation );
-    action.play();
-
-    scene.add( model );
-
-  };
-
-  // the loader will report the loading progress to this function
-  const onProgress = () => {};
-
-  // the loader will send any error messages to this function, and we'll log
-  // them to to console
-  const onError = ( errorMessage ) => { console.log( errorMessage ); };
-
-  //
-
-  // load the first model. Each model is loaded asynchronously,
-  // so don't make any assumption about which one will finish loading first
-  const flamingoPosition = new THREE.Vector3( 7.5, 0, -10 );
-  //loader.load( 'models/Flamingo.glb', gltf => onLoad( gltf, flamingoPosition ), onProgress, onError );
-
+  const loader = new GLTFLoader();
+  let file = 'load/' + f;
 
 }
 
@@ -450,53 +457,20 @@ function exportModels_GLTF() {
 
 //
 
-function checkForScenes(match) {
+function checkForScenes() {
 
-  //joining path of directory 
-  //const directoryPath = 'cd ..\\scenes\\';
-  const directoryPath = 'cd ..';
-  //const directoryPath = path.join(__dirname, 'scenes');
+  try{
+    sock.send("loadOBJ");
+  } catch( e ) {
+    write( e );
+  }
 
-  const regEx = match; // /(\/*.json)/;
+  if ( !state ) return;
 
-  try {
-    
-    //passsing directoryPath and callback function
-    //fs.readdir(directoryPath, function (err, files) {
-        
-      //handling error
-        if (err) {
-
-            return console.log('Unable to scan directory: ' + err);
-        
-          } 
-        
-        //listing all files using forEach
-        console.log(regEx);
-        
-        files.forEach(function (file) {
-            
-          // Do whatever you want to do with the file
-            let match = file.match(regEx);
-            
-            if ( match ) {
-              
-              console.log(`found new scene`, file);
-              
-              loadModels_OBJ(file);
-
-            } 
-
-        });
-
-    //});
-
-  } catch( error ) {
-
-    write( `file conversion error: ${error}` );
-
-  }    
-
+  let file = state.file;
+  //console.log(state.file[0]);
+  //console.log(`client: ${file}`);
+  loadModels_OBJ(file);
   
 }
 
@@ -567,11 +541,11 @@ function update() {
 
   const delta = clock.getDelta();
 
-  // for ( const mixer of mixers ) {
+  for ( const mixer of mixers ) {
 
-  //   mixer.update( delta );
+    mixer.update( delta );
 
-  // }
+  }
 
 }
 
@@ -581,7 +555,7 @@ function render() {
   handleController( controller1 );
   handleController( controller2 );
 
-  //checkForScenes(regEx_INI);
+  //checkForScenes();
   //checkForScenes(regEx_HOU);
   //checkForScenes(regEx_GPT);
   

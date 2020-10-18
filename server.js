@@ -23,6 +23,8 @@ const WebSocket = require('ws');
 const { vec2, vec3, vec4, quat, mat3, mat4 } = require("gl-matrix");
 
 const hapi = require("./index.js")
+const regEx = /(\/*e.json)/;
+const directoryPath = path.join(__dirname, 'client/load');
 
 const project_path = process.cwd();
 const server_path = __dirname;
@@ -130,17 +132,47 @@ wss.on('connection', function(ws, req) {
 				console.log("hi")
 
 				//ws.send(JSON.stringify({ cmd:"newData", state: manus.state }))
-
-				ws.send(JSON.stringify({ cmd: "trackingData", state:getTrackingData() }))
+				//ws.send(JSON.stringify({ cmd: "trackingData", state:getTrackingData() }))
 			
 			} else if (msg == "sendHaptics") {
 		
 				console.log("hi")
 
-			} else if (msg == "sendHaptics_back") {
+			} else if (msg == "loadOBJ") {
 
-				console.log("hi")
+				//console.log("loading OBJ...");
 				
+				try {
+					//passsing directoryPath and callback function
+					fs.readdir(directoryPath, function (err, files) {
+							//handling error
+							if (err) {
+									return console.log('Unable to scan directory: ' + err);
+							} 
+							//listing all files using forEach
+							files.forEach(function (file) {
+									// Do whatever you want to do with the file
+									let match = file.match(regEx);
+									if ( match ) {
+										try {
+
+												hapi.state.file = file;//'triangle.json'
+												//console.log(hapi.state.file);
+												ws.send(JSON.stringify({ cmd: "load", state: hapi.state }))
+														
+										} catch (error) {
+											console.log(`error: `, error);
+										}
+									} else {
+										hapi.state.file = {};												
+										//console.log(hapi.state.file);
+									}
+							});
+					});
+				} catch( error ) {
+					console.log( `nothing to find: ${error}` );
+				}  
+		
 			} else {
 
 				console.log("received message from client:", id, msg);

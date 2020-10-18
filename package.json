@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon server.js --ignore 'scenes/'",
     "install": "node-gyp rebuild",
-    "postinstall": "node test.js"
+    "postinstall": "npm start"
   },
   "gypfile": true,
   "repository": {
@@ -26,10 +26,13 @@
   "homepage": "https://github.com/worldmaking/node-hapi#readme",
   "dependencies": {
     "bindings": "^1.5.0",
+    "bufferutil": "^4.0.1",
     "esm": "^3.2.25",
     "fs": "0.0.1-security",
     "gl-matrix": "^3.3.0",
     "path": "^0.12.7",
+    "promise": "^8.1.0",
+    "utf-8-validate": "^5.0.2",
     "ws": "^7.3.1"
   }
 }
