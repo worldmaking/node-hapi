@@ -1,26 +1,44 @@
 #include "node-api-helpers.h"
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <assert.h>
+#include <malloc.h>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "HAPI/HAPI.h"
 #include "HAPI/HAPI_API.h"
 #include "HAPI/HAPI_Common.h"
 #include "HAPI/HAPI_Helpers.h"
 #include "HAPI/HAPI_Version.h"
 
+#define __FBX_API_h__
+#include "fbx/FBX_API.h"
+#define __FBX_Common_h__
+#include "fbx/FBX_Common.h"
+#define __FBX_Translator_h__
+#include "fbx/FBX_Translator.h"
+//#include "fbx/fbxsdk/fbxsdk.h"
+#include "ROP/ROP_API.h"
+
 #include "GLTF/GLTF_API.h"
-//TODO: need to work out why all the following fail build
-//TODO: fatal error C1189: #error:  "You must compile with the /GR switch (RTTI)
-// #include "GLTF/GLTF_Loader.h"
-// #include "GLTF/GLTF_Types.h"
-// #include "GLTF/GLTF_Util.h"
-// #include "GLTF/GLTF_Cache.h"
-// #include "GLTF/GLTF_GeoLoader.h"
+
+#define __SYS_Types__
+#include "sys/SYS_API.h"
+
+#include "SI/SI_API.h"
+
+#define __UT_UndoManager__
+#include "UT/UT_API.h"
+#include "UI/UI_API.h"
 
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <assert.h>
-#include <malloc.h>
+///////////////////////////////////////////////////////////////////////////////////
 
 //TODO: implement persistent JS objects for session storage
 
@@ -33,6 +51,9 @@
 //   napi_ref sessionRef;
 //   //napi_ref onHandshakeRef, onSuccessRef, onFailRef, onDataRef, onRawRef, onDongleListRef, onDeviceListRef, onDeviceInfoRef, onSourcesListRef, onSourceInfoRef, onQueryRef;
 // };
+
+
+///////////////////////////////////////////////////////////////////////////////////
 
 #define ENSURE_SUCCESS( result ) \
 if ( (result) != HAPI_RESULT_SUCCESS ) \
@@ -49,6 +70,9 @@ if ( (result) != HAPI_RESULT_SUCCESS ) \
     std::cerr << getLastCookError() << std::endl; \
     exit( 1 ); \
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////
 
 static std::string getLastError();
 static std::string getLastCookError();
@@ -90,8 +114,8 @@ static std::string getString( HAPI_StringHandle stringHandle ) {
     }
     int bufferLength;
     HAPI_GetStringBufLength( nullptr,
-                   stringHandle,
-                   &bufferLength );
+                stringHandle,
+                &bufferLength );
     char * buffer = new char[ bufferLength ];
     HAPI_GetString ( nullptr, stringHandle, buffer, bufferLength );
     std::string result( buffer );
@@ -101,13 +125,79 @@ static std::string getString( HAPI_StringHandle stringHandle ) {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+//namespace FBX_Names;
+
+///////////////////////////////////////////////////////////////////////////////////
+
+class FBX_Translator;
+class FBX_ImportOptions;
+class FBX_ObjectTypeFilter;
+
+class ROP_FBXExporterWrapper;
+class ROP_FBXExportOptions;
+
+class OP_Network;
+class FBX_ErrorManager;
+class UT_UndoManager;
+
+class UT_String;
+
+class UT_Error;
+class UT_ErrorManager;
+
+enum UI_ErrorType;
+enum UT_ErrorSeverity;
+
+int getErrorManager ( void ) {
+    return NULL;
+}
+
+int SIopenMessageDialog( UT_String msg( UT_String ), int error_type);
+
+bool importScene( const char *fileURI, bool is_merging,
+                FBX_ImportOptions *options = NULL, FBX_ObjectTypeFilter *filter = NULL,
+		        const char *password = NULL, OP_Network **parent_net = NULL ) {
+    return true;
+}
+
+static void enableUndoCreation();
+static void disableUndoCreation();
+
+void allowUndos();
+void disallowUndos();
+
+void allowUndos() {
+    enableUndoCreation();
+}
+
+void disallowUndos() {
+    disableUndoCreation();
+}
+
+static void enableUndoCreation() {
+
+}
+
+static void disableUndoCreation() {
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+// destructors
+// int ~FBX_Translator();
+// int ~FBX_ErrorManager();
+// int ~UT_UndoManager();
+
+///////////////////////////////////////////////////////////////////////////////////
+
 static void
 printCompleteNodeInfo( HAPI_Session &session, HAPI_NodeId nodeId,
                 HAPI_AssetInfo &assetInfo )
 {
     HAPI_NodeInfo nodeInfo;
     ENSURE_SUCCESS( HAPI_GetNodeInfo ( &session, nodeId, &nodeInfo ) );
-    
+
     int objectCount = 0;
     HAPI_ObjectInfo * objectInfos = 0;
     if (nodeInfo.type == HAPI_NODETYPE_SOP)
@@ -165,8 +255,8 @@ processFloatAttrib( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
 {
     HAPI_AttributeInfo attribInfo;
     ENSURE_SUCCESS( HAPI_GetAttributeInfo( &session, geoNode, partId,
-                       name.c_str(), owner, &attribInfo ) );
-    
+                        name.c_str(), owner, &attribInfo ) );
+
     float * attribData = new float[ attribInfo.count * attribInfo.tupleSize ];
     ENSURE_SUCCESS( HAPI_GetAttributeFloatData( &session, geoNode, partId,
                         name.c_str(), &attribInfo, -1,
@@ -190,14 +280,14 @@ processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
         HAPI_PartId partId )
 {
     std::cout << "Object " << objectNode << ", Geo " << geoNode
-          << ", Part " << partId << std::endl;
+            << ", Part " << partId << std::endl;
     HAPI_PartInfo partInfo;
     ENSURE_SUCCESS( HAPI_GetPartInfo( &session, geoNode,
-                      partId, &partInfo ) );
+                        partId, &partInfo ) );
     HAPI_StringHandle * attribNamesSh = new HAPI_StringHandle[ partInfo.attributeCounts[ HAPI_ATTROWNER_POINT ] ];
     ENSURE_SUCCESS( HAPI_GetAttributeNames( &session, geoNode, partInfo.id,
                         HAPI_ATTROWNER_POINT, attribNamesSh,
-                         partInfo.attributeCounts[ HAPI_ATTROWNER_POINT ] ) );
+                        partInfo.attributeCounts[ HAPI_ATTROWNER_POINT ] ) );
     for ( int attribIndex = 0; attribIndex < partInfo.attributeCounts[ HAPI_ATTROWNER_POINT ]; ++attribIndex)
     {
         std::string attribName = getString( attribNamesSh[ attribIndex ] );
@@ -207,20 +297,20 @@ processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
     std::cout << "Point Positions: " << std::endl;
     processFloatAttrib( session, assetInfo, objectNode, geoNode,
             partId, HAPI_ATTROWNER_POINT, "P" );
-    
+
     std::cout << "Number of Faces: " << partInfo.faceCount << std::endl;
-    
+
     if ( partInfo.type != HAPI_PARTTYPE_CURVE )
     {
         int * faceCounts = new int[ partInfo.faceCount ];
-    
+
         ENSURE_SUCCESS( HAPI_GetFaceCounts( &session, geoNode, partId,
                             faceCounts, 0, partInfo.faceCount ) );
         for ( int ii = 0; ii < partInfo.faceCount; ++ii )
         {
             std::cout << faceCounts[ ii ] << ", ";
         }
-    
+
         std::cout << std::endl;
         int * vertexList = new int[ partInfo.vertexCount ];
         ENSURE_SUCCESS( HAPI_GetVertexList( &session, geoNode, partId,
@@ -233,12 +323,12 @@ processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
             {
             std::cout
                 << "Vertex :" << currIndex << ", belonging to face: "
-                << ii <<", index: " 
+                << ii <<", index: "
                 << vertexList[ currIndex ] << " of points array\n";
             currIndex++;
             }
         }
-    
+
         delete [] faceCounts;
         delete [] vertexList;
     }
@@ -251,15 +341,129 @@ processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
 // just making it global for now; may make it into a separate object at some point.
 HAPI_Session session;
 HAPI_CookOptions cookOptions;
+// FBX_ImportOptions import_options;
+// FBX_ObjectTypeFilter type_filter;
 
-napi_value test(napi_env env, napi_callback_info info) {
+/// Hotkey handler method. Returns true if successfully consumed.
+// typedef bool (UI_Object::*UI_HotkeyMethod)(UI_Event *);
+//template<typename T> class UT_Array;
+
+///////////////////////////////////////////////////////////////////////////////////
+
+static void
+usage(const char *program)
+{
+    std::cerr << "Usage: " << program << " [-h]\n";
+    std::cerr << "Explanation to go here...\n";
+    exit(1);
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+napi_value import_FBX(napi_env env, napi_callback_info info) {
+	napi_status status = napi_ok;
+	napi_value result = nullptr;
+
+    // ported from https://www.sidefx.com/docs/hdk/_h_d_k__f_b_x.html
+
+    // Temporarily disable undos.
+    disallowUndos();
+
+    bool do_merge;
+    // Use default settings to import the file.
+    FBX_ImportOptions import_options();
+    // Use default types filter for the import.
+    FBX_ObjectTypeFilter type_filter();
+
+    // Create and run the importer
+    FBX_Translator fbx_translator();
+
+    bool did_succeed = fbx_translator.importScene("test.fbx", do_merge, &import_options, &type_filter);
+
+    UI_ErrorType UI_ERROR;
+    UI_ErrorType UI_WARNING;
+
+    // See if we have any errors
+    if (fbx_translator.getErrorManager()->getNumItems() > 0)
+    {
+        UI_ErrorType severity;
+        UT_String msg(UT_String ALWAYS_DEEP);
+        // See whether we have any critical errors or whether
+        // all we've got are warnings:
+        if (fbx_translator.getErrorManager()->getDidReportCriticalErrors())
+            severity = UI_ERROR;
+        else
+            severity = UI_WARNING;
+        fbx_translator.getErrorManager()->appendAllErrors(msg);
+        fbx_translator.getErrorManager()->appendAllWarnings(msg);
+        // Open a dialog with warnings/errors
+        SIopenMessageDialog(msg, severity);
+    }
+
+
+    // Re-enable undos.
+    allowUndos();
+
+
+    //HAPI_Cleanup( &session );
+
+	return(status == napi_ok) ? result : nullptr;
+}
+
+napi_value export_FBX(napi_env env, napi_callback_info info) {
+	napi_status status = napi_ok;
+	napi_value result = nullptr;
+
+    // ported from https://www.sidefx.com/docs/hdk/_h_d_k__f_b_x.html
+
+    // Temporarily disable undos.
+    disallowUndos();
+
+    float time;
+    float start_time = 0.0f;
+    float end_time = 0.0f;
+
+
+    // Create the wrapper and the options objects
+    ROP_FBXExporterWrapper fbx_exporter();
+    ROP_FBXExportOptions export_options();
+
+    // Initialize the exporter first
+    bool did_succeed = fbx_exporter.initializeExport("test_out.fbx", start_time, end_time, &export_options);
+    if(!did_succeed)
+        fbx_exporter.getErrorManager()->addError("Could not initialize FBX exporter", true);
+    else
+    {
+        start_time = HAPI_GetTime( &session, &time );
+        // If everything is all right, perform the actual export.
+        fbx_exporter.doExport();
+
+        end_time = HAPI_GetTime( &session, &time );
+
+        // Cleanup and check for errors
+        did_succeed = fbx_exporter.finishExport();
+        if(!did_succeed) {
+            fbx_exporter.getErrorManager()->addError("Could not finalize FBX export", true);
+        }
+    }
+
+    // Re-enable undos.
+    allowUndos();
+
+
+    //HAPI_Cleanup( &session );
+
+	return (status == napi_ok) ? result : nullptr;
+}
+
+napi_value make_OBJ(napi_env env, napi_callback_info info) {
 	napi_status status = napi_ok;
 	napi_value result = nullptr;
 
 	// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html
     HAPI_NodeId newNode;
     ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Triangle" ) ); //TODO: use input variable inplace of "Triangle"
-    ENSURE_SUCCESS( HAPI_CookNode ( &session, newNode, &cookOptions ) );
+    ENSURE_SUCCESS( HAPI_CookNode( &session, newNode, &cookOptions ) );
     int cookStatus;
     HAPI_Result cookResult;
     do
@@ -308,7 +512,7 @@ napi_value test(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/triangle.obj" ) );//TODO: use input variable
 
 
-	HAPI_Cleanup( &session );
+	// HAPI_Cleanup( &session );
     // return 0;
 
 	return (status == napi_ok) ? result : nullptr;
@@ -373,7 +577,7 @@ napi_value testPoint(napi_env env, napi_callback_info info) {
 
 }
 
-napi_value load(napi_env env, napi_callback_info info) {
+napi_value load_hdanc(napi_env env, napi_callback_info info) {
     napi_status status = napi_ok;
     napi_value result = nullptr;
 
@@ -418,7 +622,6 @@ napi_value load(napi_env env, napi_callback_info info) {
 }
 
 //TODO: set up napi for session management
-
 // napi_value open(napi_env env, napi_callback_info info) {
 //   // create a PersistentSessionData to hold our JS functions etc. in for this session:
 //   PersistentSessionData * data = new PersistentSessionData;
@@ -457,6 +660,7 @@ napi_value init(napi_env env, napi_value exports) {
     }
     else
     {
+        HAPI_ClearConnectionError( );
         // Start and connect to an out of process session
         HAPI_ThriftServerOptions serverOptions{ 0 };
         serverOptions.autoClose = true;
@@ -486,13 +690,18 @@ napi_value init(napi_env env, napi_value exports) {
 
 	napi_status status;
 	napi_property_descriptor properties[] = {
-		{ "test", 0, test, 0, 0, 0, napi_default, 0 },//TODO: use input variable
-		{ "testPoint", 0, testPoint, 0, 0, 0, napi_default, 0 },//TODO: use input variable
-        { "load", 0, load, 0, 0, 0, napi_default, 0 },//TODO: use input variable
+        //TODO: use input variable
+
+		{ "make_OBJ", 0, make_OBJ, 0, 0, 0, napi_default, 0 },
+		{ "testPoint", 0, testPoint, 0, 0, 0, napi_default, 0 },
+        { "load_hdanc", 0, load_hdanc, 0, 0, 0, napi_default, 0 },
+        { "import_FBX", 0, import_FBX, 0, 0, 0, napi_default, 0 },
+        { "export_FBX", 0, export_FBX, 0, 0, 0, napi_default, 0 },
 
 	};
+
 	status = napi_define_properties(env, exports, sizeof(properties)/sizeof(napi_property_descriptor), properties);
-	//assert(status == napi_ok);
+	assert(status == napi_ok);
 	return exports;
 }
 NAPI_MODULE(NODE_GYP_MODULE_NAME, init)

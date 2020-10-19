@@ -24,12 +24,18 @@ client.connect(PORT, HOST, function() {
 
     // GPT will create the kind of data used and sent by these calls in and out of node-hapi.cpp
     console.log('test');
-    hapi.test();
-    //console.log('testPoint');
-    //hapi.testPoint();
-    //console.log('load');
-    //hapi.load();
 
+    //TODO: make one import and one export after testing FBX
+    //for now "make" an object/scene and save as .hip .obj .FBX
+    //TODO: use pass-in for declaring what ext type
+
+    hapi.make_OBJ();
+    hapi.load_hdanc();
+    hapi.import_FBX();
+    hapi.export_FBX();
+
+    //console.log('testPoint');
+    hapi.testPoint();
     // setTimeout(()=>{
     // 	console.log("chao")
     // }, 100000)

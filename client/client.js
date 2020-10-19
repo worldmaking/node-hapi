@@ -1,5 +1,7 @@
 import * as THREE from './js/three.module.js';
 
+import Stats from 'Stats';
+
 import { OrbitControls } from './js/OrbitControls.js';
 import { TubePainter } from './js/TubePainter.js';
 import { VRButton } from './js/VRButton.js';
@@ -150,7 +152,7 @@ function connect_to_server( opt, log ) {
 
 
 //  //************************************** // INITIALIZE // *****************************************//
-let container;
+let container, stats;
 let camera, scene, renderer;
 let table, floor, grid;
 
@@ -169,6 +171,10 @@ const clock = new THREE.Clock();
 const regEx_INI = /(\/*.json)/;
 const regEx_HOU = /(\/*_HOU.json)/;
 const regEx_GPT = /(\/*_GPT.json)/;
+
+//
+//TODO: setup for future
+let arrayCamera;
 
 //
 
@@ -197,6 +203,8 @@ function initialize() {
     console.error( e );
   }
 
+  stats = new Stats();
+  container.appendChild( stats.dom );
 
   // try{
   //   sock.send("loadOBJ");
@@ -597,6 +605,7 @@ function render() {
   //respondToScenes();
 
   renderer.render( scene, camera );
+  stats.update();
   //stop();
 
 }
