@@ -53,7 +53,7 @@ client.connect(PORT, HOST, function() {
     let regEx = /(\/*.obj)/;
 
     try {
-      //passsing directoryPath and callback function
+      //passing directoryPath and callback function
       fs.readdir(directoryPath, function (err, files) {
           //handling error
           if (err) {
@@ -66,7 +66,7 @@ client.connect(PORT, HOST, function() {
               let match = file.match(regEx);
               if ( match ) {
                 console.log(`\nattempting to convert to json`, file);
-                // useage
+                // use
                 // node -r esm obj2three.js model.obj
 
                 try {

@@ -143,7 +143,7 @@ wss.on('connection', function(ws, req) {
 				//console.log("loading OBJ...");
 
 				try {
-					//passsing directoryPath and callback function
+					//passing directoryPath and callback function
 					fs.readdir(directoryPath, function (err, files) {
 							//handling error
 							if (err) {
