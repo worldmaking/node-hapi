@@ -41,6 +41,7 @@
     "promise": "^8.1.0",
     "python": "0.0.4",
     "python2": "0.0.1",
+    "stats.js": "^0.17.0",
     "three-fbx-loader": "^1.0.3",
     "utf": "^1.0.0",
     "utf-8-validate": "^5.0.2",

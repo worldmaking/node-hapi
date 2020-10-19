@@ -360,6 +360,8 @@ usage(const char *program)
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+/*  //TODO: commented out while working on JS side
+{
 napi_value import_FBX(napi_env env, napi_callback_info info) {
 	napi_status status = napi_ok;
 	napi_value result = nullptr;
@@ -456,68 +458,6 @@ napi_value export_FBX(napi_env env, napi_callback_info info) {
 	return (status == napi_ok) ? result : nullptr;
 }
 
-napi_value make_OBJ(napi_env env, napi_callback_info info) {
-	napi_status status = napi_ok;
-	napi_value result = nullptr;
-
-	// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html
-    HAPI_NodeId newNode;
-    ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Triangle" ) ); //TODO: use input variable inplace of "Triangle"
-    ENSURE_SUCCESS( HAPI_CookNode( &session, newNode, &cookOptions ) );
-    int cookStatus;
-    HAPI_Result cookResult;
-    do
-    {
-    cookResult = HAPI_GetStatus( &session, HAPI_STATUS_COOK_STATE, &cookStatus );
-    }
-    while (cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS);
-    ENSURE_SUCCESS( cookResult );
-    ENSURE_COOK_SUCCESS( cookStatus );
-
-    HAPI_PartInfo newNodePart = HAPI_PartInfo_Create();
-    newNodePart.type = HAPI_PARTTYPE_MESH;
-    newNodePart.faceCount = 1;
-    newNodePart.vertexCount = 3;
-    newNodePart.pointCount = 3;
-
-    ENSURE_SUCCESS( HAPI_SetPartInfo( &session, newNode, 0, &newNodePart ) );
-    HAPI_AttributeInfo newNodePointInfo = HAPI_AttributeInfo_Create();
-    newNodePointInfo.count = 3;
-    newNodePointInfo.tupleSize = 3;
-    newNodePointInfo.exists = true;
-    newNodePointInfo.storage = HAPI_STORAGETYPE_FLOAT;
-    newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
-    ENSURE_SUCCESS( HAPI_AddAttribute( &session, newNode, 0, "P", &newNodePointInfo ) );
-    float positions[ 9 ] = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f };
-    ENSURE_SUCCESS( HAPI_SetAttributeFloatData( &session, newNode, 0, "P", &newNodePointInfo, positions, 0, 3 ) );
-    int vertices[ 3 ] = { 0, 1, 2 };
-    ENSURE_SUCCESS( HAPI_SetVertexList( &session, newNode, 0, vertices, 0, 3 ) );
-    int face_counts [ 1 ] = { 3 };
-    ENSURE_SUCCESS( HAPI_SetFaceCounts( &session, newNode, 0, face_counts, 0, 1 ) );
-    char ** strs = new char * [ 3 ];
-    strs[ 0 ] = _strdup( "strPoint1 " );
-    strs[ 1 ] = _strdup( "strPoint2 " );
-    strs[ 2 ] = _strdup( "strPoint3 " );
-    newNodePointInfo.count = 3;
-    newNodePointInfo.tupleSize = 1;
-    newNodePointInfo.exists = true;
-    newNodePointInfo.storage = HAPI_STORAGETYPE_STRING;
-    newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
-    ENSURE_SUCCESS( HAPI_AddAttribute( &session, newNode, 0, "strData", &newNodePointInfo ) );
-    ENSURE_SUCCESS( HAPI_SetAttributeStringData( &session, newNode, 0, "strData", &newNodePointInfo, (const char ** ) strs, 0, 3 ) );
-
-    ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
-
-    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );//TODO: use input variable
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/triangle.obj" ) );//TODO: use input variable
-
-
-	// HAPI_Cleanup( &session );
-    // return 0;
-
-	return (status == napi_ok) ? result : nullptr;
-}
-
 napi_value testPoint(napi_env env, napi_callback_info info) {
 	napi_status status = napi_ok;
 	napi_value result = nullptr;
@@ -575,6 +515,69 @@ napi_value testPoint(napi_env env, napi_callback_info info) {
 
 	return (status == napi_ok) ? result : nullptr;
 
+}
+*/
+
+napi_value make_OBJ(napi_env env, napi_callback_info info) {
+	napi_status status = napi_ok;
+	napi_value result = nullptr;
+
+	// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html
+    HAPI_NodeId newNode;
+    ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Triangle" ) ); //TODO: use input variable inplace of "Triangle"
+    ENSURE_SUCCESS( HAPI_CookNode( &session, newNode, &cookOptions ) );
+    int cookStatus;
+    HAPI_Result cookResult;
+    do
+    {
+    cookResult = HAPI_GetStatus( &session, HAPI_STATUS_COOK_STATE, &cookStatus );
+    }
+    while (cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS);
+    ENSURE_SUCCESS( cookResult );
+    ENSURE_COOK_SUCCESS( cookStatus );
+
+    HAPI_PartInfo newNodePart = HAPI_PartInfo_Create();
+    newNodePart.type = HAPI_PARTTYPE_MESH;
+    newNodePart.faceCount = 1;
+    newNodePart.vertexCount = 3;
+    newNodePart.pointCount = 3;
+
+    ENSURE_SUCCESS( HAPI_SetPartInfo( &session, newNode, 0, &newNodePart ) );
+    HAPI_AttributeInfo newNodePointInfo = HAPI_AttributeInfo_Create();
+    newNodePointInfo.count = 3;
+    newNodePointInfo.tupleSize = 3;
+    newNodePointInfo.exists = true;
+    newNodePointInfo.storage = HAPI_STORAGETYPE_FLOAT;
+    newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
+    ENSURE_SUCCESS( HAPI_AddAttribute( &session, newNode, 0, "P", &newNodePointInfo ) );
+    float positions[ 9 ] = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f };
+    ENSURE_SUCCESS( HAPI_SetAttributeFloatData( &session, newNode, 0, "P", &newNodePointInfo, positions, 0, 3 ) );
+    int vertices[ 3 ] = { 0, 1, 2 };
+    ENSURE_SUCCESS( HAPI_SetVertexList( &session, newNode, 0, vertices, 0, 3 ) );
+    int face_counts [ 1 ] = { 3 };
+    ENSURE_SUCCESS( HAPI_SetFaceCounts( &session, newNode, 0, face_counts, 0, 1 ) );
+    char ** strs = new char * [ 3 ];
+    strs[ 0 ] = _strdup( "strPoint1 " );
+    strs[ 1 ] = _strdup( "strPoint2 " );
+    strs[ 2 ] = _strdup( "strPoint3 " );
+    newNodePointInfo.count = 3;
+    newNodePointInfo.tupleSize = 1;
+    newNodePointInfo.exists = true;
+    newNodePointInfo.storage = HAPI_STORAGETYPE_STRING;
+    newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
+    ENSURE_SUCCESS( HAPI_AddAttribute( &session, newNode, 0, "strData", &newNodePointInfo ) );
+    ENSURE_SUCCESS( HAPI_SetAttributeStringData( &session, newNode, 0, "strData", &newNodePointInfo, (const char ** ) strs, 0, 3 ) );
+
+    ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
+
+    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );//TODO: use input variable
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "client/load/triangle.obj" ) );//TODO: use input variable
+
+
+	// HAPI_Cleanup( &session );
+    // return 0;
+
+	return (status == napi_ok) ? result : nullptr;
 }
 
 napi_value load_hdanc(napi_env env, napi_callback_info info) {
@@ -693,10 +696,10 @@ napi_value init(napi_env env, napi_value exports) {
         //TODO: use input variable
 
 		{ "make_OBJ", 0, make_OBJ, 0, 0, 0, napi_default, 0 },
-		{ "testPoint", 0, testPoint, 0, 0, 0, napi_default, 0 },
         { "load_hdanc", 0, load_hdanc, 0, 0, 0, napi_default, 0 },
-        { "import_FBX", 0, import_FBX, 0, 0, 0, napi_default, 0 },
-        { "export_FBX", 0, export_FBX, 0, 0, 0, napi_default, 0 },
+        //{ "testPoint", 0, testPoint, 0, 0, 0, napi_default, 0 }, //TODO: commented out while working on JS side
+        //{ "import_FBX", 0, import_FBX, 0, 0, 0, napi_default, 0 }, //TODO: commented out while working on JS side
+        //{ "export_FBX", 0, export_FBX, 0, 0, 0, napi_default, 0 }, //TODO: commented out while working on JS side
 
 	};
 

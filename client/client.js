@@ -1,7 +1,5 @@
 import * as THREE from './js/three.module.js';
 
-import Stats from 'Stats';
-
 import { OrbitControls } from './js/OrbitControls.js';
 import { TubePainter } from './js/TubePainter.js';
 import { VRButton } from './js/VRButton.js';
@@ -152,7 +150,7 @@ function connect_to_server( opt, log ) {
 
 
 //  //************************************** // INITIALIZE // *****************************************//
-let container, stats;
+let container;
 let camera, scene, renderer;
 let table, floor, grid;
 
@@ -163,7 +161,8 @@ let cursor = new THREE.Vector3();
 
 let controls, result;
 
-const { vec2, vec3, vec4, quat, mat3, mat4 } = require("gl-matrix");
+let vec2, vec3, vec4, quat, mat3, mat4;
+vec3 = new THREE.Vector3();
 
 const mixers = [];
 const clock = new THREE.Clock();
@@ -175,11 +174,16 @@ const regEx_GPT = /(\/*_GPT.json)/;
 //
 //TODO: setup for future
 let arrayCamera;
-
+let scenes = []; //scenes.add(scene);
+let sceneObj = new THREE.Scene();
 //
+
+let model1, model2, model3;
+let p1, p2, p3;
 
 function initialize() {
 
+  console.log('initialize');
   //container = document.querySelector( '#scene-container' );
   container = document.createElement( 'div' );
   document.body.appendChild( container );
@@ -192,9 +196,23 @@ function initialize() {
   createLights();
   createBaseScene();
   createRenderer();
-  // loadModels_OBJ();// _GLTF _OBJ
   setControllers();
 
+
+  let f = 'load/triangle1.obj';
+  model1 = loadModels_OBJ( f, vec3.set(-1,2,-1) );
+
+  var vec = new THREE.Vector3();
+  f = 'load/triangle2.obj';
+  vec.clone(vec3).set(0,-1,0);
+  model2 = loadModels_OBJ( f, vec );
+  
+  var vec = new THREE.Vector3();
+  f = 'load/triangle3.obj';
+  vec.clone(vec3).set(-3,4,2);
+  model3 = loadModels_OBJ( f, vec );
+
+  
   //
 
   try {
@@ -203,39 +221,7 @@ function initialize() {
     console.error( e );
   }
 
-  stats = new Stats();
-  container.appendChild( stats.dom );
-
-  // try{
-  //   sock.send("loadOBJ");
-  // } catch( e ) {
-  //   write( e );
-  // }
-
-  // if ( !state ) return;
-  //let file = state.file;
-
-  let model1, model2, model3;
-
-  let p1 = loadModel('load/triangle.json').then(result => {  model1 = result.scene.children[0]; }).catch(err => console.error(err));
-  let p2 = loadModel('load/triangle.json').then(result => {  model2 = result.scene.children[0]; }).catch(err => console.error(err));
-  let p3 = loadModel('load/triangle.json').then(result => {  model3 = result.scene.children[0]; }).catch(err => console.error(err));
-
-  //if all Promises resolved
-  Promise.all([p1,p2,p3]).then(() => {
-    //do something to the model
-    model1.position.set(0,0,0);
-    model2.position.set(1,2,1);
-    model3.position.set(0,2,2);
-
-    //add model to the scene
-    scene.add(model1);
-    scene.add(model2);
-    scene.add(model3);
-
-    //continue the process
-    play();
-  });
+  play();
 
 }
 
@@ -402,71 +388,45 @@ function onWindowResize() {
 
 //
 
-let manager = new THREE.LoadingManager();
-manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
-
-	console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-
-};
-
-manager.onLoad = function ( ) {
-
-	console.log( 'Loading complete!');
-
-};
-
-manager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
-
-	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-
-};
-
-manager.onError = function ( url ) {
-
-	console.log( 'There was an error loading ' + url );
-
-};
-
-let loader = new OBJLoader( manager );
-loader.load( 'file.obj', function ( object ) {
-
-	//
-
-} );
-
 function loadModel(url) {
+  console.log('loading...');
   return new Promise(resolve => {
     new OBJLoader().load(url, resolve)
   });
 }
 
-function loadModels_OBJ( f ) { //(file)
-  //console.log('loading...');
+function loadModels_OBJ( f, vec ) { //(file)
   // file to be an array? load multiple ?
   const loader = new OBJLoader();
-  let file = 'load/' + f;
-
+  //let file = 'load/' + f;
+  let mat = THREE.DoubleSide;
   loader.load(
 
-    file,
+    f,
 
     // onLoad callback
     // Here the loaded data is assumed to be an object
     function ( obj ) {
       // Add the loaded object to the scene
+      console.log(`adding.. not yet, vecLoad:, ${vec.x}, ${vec.y}, ${vec.z}`);
+
+      obj.translateX(vec.getComponent(0));
+      obj.translateY(vec.getComponent(1));
+      obj.translateZ(vec.getComponent(2));
+
       scene.add( obj );
     },
 
     // onProgress callback
     function ( xhr ) {
-      //console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
 
     // onError callback
     function ( err ) {
       console.error( 'A load error happened', err );
     }
-
+  
   );
 
 }
@@ -480,21 +440,6 @@ function exportModels_OBJ() {
   let file = 'scene/VR'
   //const content = JSON.stringify( loader.parse( text ).toJSON(), parseNumber );
   //fs.writeFileSync( file + '.obj', result, 'utf8' );
-
-}
-
-//
-
-function loadModels_GLTF(f) {
-
-  const loader = new GLTFLoader();
-  let file = 'load/' + f;
-
-}
-
-function exportModels_GLTF() {
-
-  console.log('export GLTF');
 
 }
 
@@ -605,11 +550,12 @@ function render() {
   //respondToScenes();
 
   renderer.render( scene, camera );
-  stats.update();
+
   //stop();
 
 }
 
 window.addEventListener( 'resize', onWindowResize, false );
 
+console.log('client VR');
 initialize();

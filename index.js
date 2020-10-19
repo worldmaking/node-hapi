@@ -16,7 +16,7 @@ let state = {
   files: {},
 }
 
-exports.state = state;
+//exports.state = state;
 
 client.connect(PORT, HOST, function() {
 
@@ -29,13 +29,14 @@ client.connect(PORT, HOST, function() {
     //for now "make" an object/scene and save as .hip .obj .FBX
     //TODO: use pass-in for declaring what ext type
 
-    hapi.make_OBJ();
-    hapi.load_hdanc();
-    hapi.import_FBX();
-    hapi.export_FBX();
+    //hapi.make_OBJ();
+    //hapi.load_hdanc();
+    
+    //hapi.import_FBX(); //TODO: commented out while working on JS side
+    //hapi.export_FBX(); //TODO: commented out while working on JS side
 
     //console.log('testPoint');
-    hapi.testPoint();
+    //hapi.testPoint(); //TODO: commented out while working on JS side
     // setTimeout(()=>{
     // 	console.log("chao")
     // }, 100000)
@@ -68,4 +69,4 @@ client.connect(PORT, HOST, function() {
   console.log("ok")
   //client.write(Buffer.from(session.handshake(1)))
 
-  console.log(exports.state);
+  //console.log(exports.state);

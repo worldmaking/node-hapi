@@ -24,7 +24,6 @@
 						'<(HFS)/custom/houdini/dsolib/libGLTF.lib',
 						'<(HFS)/custom/houdini/dsolib/libSYS.lib',
 						'<(HFS)/custom/houdini/dsolib/libUT.lib',
-						'<(HFS)/custom/houdini/dsolib/libfbxsdk_md.lib',
 					],
 					'defines' : [
 						'WIN32_LEAN_AND_MEAN',
