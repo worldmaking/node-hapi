@@ -13,6 +13,7 @@ import { OBJLoader } from './js/OBJLoader.js';
 //import { EnterXRButton } from './js/webxr-button.js';
 //let EnterXRButton = new window.XRDeviceButton;
 
+
 //  //*************************************** // SERVER // ********************************************//
 let state = null;
 let sock;
@@ -159,6 +160,8 @@ let painter1, painter2;
 let cursor = new THREE.Vector3();
 
 let controls, result;
+
+const { vec2, vec3, vec4, quat, mat3, mat4 } = require("gl-matrix");
 
 const mixers = [];
 const clock = new THREE.Clock();

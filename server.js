@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const hapi = require("./index.js")
+
 //const http = require('http');
 const https = require('https');
 const url = require('url');
@@ -7,6 +9,16 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const assert = require("assert");
+
+const express = require('express');
+const WebSocket = require('ws');
+
+const regEx = /(\/*e.json)/;
+const directoryPath = path.join(__dirname, 'client/load');
+
+const project_path = process.cwd();
+const server_path = __dirname;
+const client_path = path.join(server_path, "client");
 
 const useAuth = true;
 const options = {
@@ -17,18 +29,6 @@ const options = {
   //requestCert: false, //true,
   //rejectUnauthorized: false
 };
-
-const express = require('express');
-const WebSocket = require('ws');
-const { vec2, vec3, vec4, quat, mat3, mat4 } = require("gl-matrix");
-
-const hapi = require("./index.js")
-const regEx = /(\/*e.json)/;
-const directoryPath = path.join(__dirname, 'client/load');
-
-const project_path = process.cwd();
-const server_path = __dirname;
-const client_path = path.join(server_path, "client");
 
 const app = express();
 app.use(express.static(client_path))
@@ -174,7 +174,6 @@ wss.on('connection', function(ws, req) {
 				}
 
 			} else {
-
 				console.log("received message from client:", id, msg);
 			}
 		}
