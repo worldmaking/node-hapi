@@ -7,8 +7,8 @@
 #include "HAPI/HAPI_Version.h"
 
 #include "GLTF/GLTF_API.h"
-// fatal error C1189: #error:  "You must compile with the /GR switch (RTTI)
-// need to work out why all the following fail build
+//TODO: need to work out why all the following fail build
+//TODO: fatal error C1189: #error:  "You must compile with the /GR switch (RTTI)
 // #include "GLTF/GLTF_Loader.h"
 // #include "GLTF/GLTF_Types.h"
 // #include "GLTF/GLTF_Util.h"
@@ -21,6 +21,8 @@
 #include <vector>
 #include <assert.h>
 #include <malloc.h>
+
+//TODO: implement persistent JS objects for session storage
 
 // a C++ struct to hold all the persistent JS objects we need for a Houdini session:
 // struct PersistentSessionData {
@@ -244,6 +246,8 @@ processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+//TODO: implement persistent JS objects for session storage
+
 // just making it global for now; may make it into a separate object at some point.
 HAPI_Session session;
 HAPI_CookOptions cookOptions;
@@ -254,7 +258,7 @@ napi_value test(napi_env env, napi_callback_info info) {
 
 	// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html
     HAPI_NodeId newNode;
-    ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Triangle" ) );
+    ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Triangle" ) ); //TODO: use input variable inplace of "Triangle"
     ENSURE_SUCCESS( HAPI_CookNode ( &session, newNode, &cookOptions ) );
     int cookStatus;
     HAPI_Result cookResult;
@@ -300,8 +304,8 @@ napi_value test(napi_env env, napi_callback_info info) {
 
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
 
-    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/triangle.obj" ) );
+    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );//TODO: use input variable
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/triangle.obj" ) );//TODO: use input variable
 
 
 	HAPI_Cleanup( &session );
@@ -317,7 +321,7 @@ napi_value testPoint(napi_env env, napi_callback_info info) {
 		// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html#HAPI_FullSourceSamples_AssetInputs_MarshallingPointClouds
     HAPI_NodeId newNode;
 
-    ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Point Cloud" ) );
+    ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Point Cloud" ) );//TODO: use input variable
     ENSURE_SUCCESS( HAPI_CookNode ( &session, newNode, &cookOptions ) );
     int cookStatus;
     HAPI_Result cookResult;
@@ -359,8 +363,8 @@ napi_value testPoint(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_SetAttributeFloatData( &session, sopNodeId, 0, "P", &newNodePointInfo, positions, 0, 8 ) );
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, sopNodeId ) );
 
-    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/point_cloud.hip", false ) );
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/point_cloud.obj" ) );
+    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/point_cloud.hip", false ) );//TODO: use input variable
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/point_cloud.obj" ) );//TODO: use input variable
 
     // HAPI_Cleanup( &session );
     // return 0;
@@ -374,7 +378,7 @@ napi_value load(napi_env env, napi_callback_info info) {
     napi_value result = nullptr;
 
     HAPI_AssetLibraryId assetLibId;
-    ENSURE_SUCCESS( HAPI_LoadAssetLibraryFromFile( &session, "scenes/geometry.hdanc", true, &assetLibId ) );
+    ENSURE_SUCCESS( HAPI_LoadAssetLibraryFromFile( &session, "scenes/geometry.hdanc", true, &assetLibId ) );//TODO: use input variable
     int assetCount;
     ENSURE_SUCCESS( HAPI_GetAvailableAssetCount( &session, assetLibId, &assetCount ) );
     if (assetCount > 1)
@@ -387,7 +391,7 @@ napi_value load(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_GetAvailableAssets( &session, assetLibId, &assetSh, assetCount ) );
     std::string assetName = getString( assetSh );
     HAPI_NodeId nodeId;
-    ENSURE_SUCCESS( HAPI_CreateNode( &session, -1, assetName.c_str(), "TestObject", false, &nodeId ) );
+    ENSURE_SUCCESS( HAPI_CreateNode( &session, -1, assetName.c_str(), "TestObject", false, &nodeId ) );//TODO: use input variable
     ENSURE_SUCCESS( HAPI_CookNode ( &session, nodeId, &cookOptions ) );
     int cookStatus;
     HAPI_Result cookResult;
@@ -413,6 +417,7 @@ napi_value load(napi_env env, napi_callback_info info) {
     return (status == napi_ok ) ? result : nullptr;
 }
 
+//TODO: set up napi for session management
 
 // napi_value open(napi_env env, napi_callback_info info) {
 //   // create a PersistentSessionData to hold our JS functions etc. in for this session:
@@ -481,9 +486,9 @@ napi_value init(napi_env env, napi_value exports) {
 
 	napi_status status;
 	napi_property_descriptor properties[] = {
-		{ "test", 0, test, 0, 0, 0, napi_default, 0 },
-		{ "testPoint", 0, testPoint, 0, 0, 0, napi_default, 0 },
-        { "load", 0, load, 0, 0, 0, napi_default, 0 },
+		{ "test", 0, test, 0, 0, 0, napi_default, 0 },//TODO: use input variable
+		{ "testPoint", 0, testPoint, 0, 0, 0, napi_default, 0 },//TODO: use input variable
+        { "load", 0, load, 0, 0, 0, napi_default, 0 },//TODO: use input variable
 
 	};
 	status = napi_define_properties(env, exports, sizeof(properties)/sizeof(napi_property_descriptor), properties);

@@ -1,8 +1,8 @@
-# node-hapi
+# Node-HAPI built for Houdini 18
 
-## node threejs WebXR bindings
+## talking to SideFX Houdini 18.0.597 HDK and Houdini Engine
 
-### talking to SideFX Houdini 18.0.597 HDK and Houdini Engine
+### Houdini node threejs WebXR bindings
 
 ## usage for webxr - webgl
 
