@@ -9,10 +9,10 @@
 			'conditions': [
         ['OS=="win"', {
 					'variables': {
-						'HFS': 'C:/Program Files/Side Effects Software/Houdini 18.0.499'
+						'HFS': 'C:/Program Files/Side Effects Software/Houdini 18.0.597'
 					},
 					'include_dirs': [
-						'<(HFS)/toolkit/include/'			
+						'<(HFS)/toolkit/include/'
 					],
 					'library_dirs': [],
 					'libraries': [
@@ -31,10 +31,10 @@
 						},
 					},
 				}],
-        		['OS=="mac"', {
+        ['OS=="mac"', {
 
 				}],
-        		['OS=="linux"', {
+        ['OS=="linux"', {
 
 				}],
 			],

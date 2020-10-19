@@ -1,12 +1,12 @@
 #include "node-api-helpers.h"
 
 #include "HAPI/HAPI.h"
-#include "HAPI/HAPI_API.h"
-#include "HAPI/HAPI_Common.h"
-#include "HAPI/HAPI_Helpers.h"
+// #include "HAPI/HAPI_API.h"
+// #include "HAPI/HAPI_Common.h"
+// #include "HAPI/HAPI_Helpers.h"
 #include "HAPI/HAPI_Version.h"
 
-#include "GLTF/GLTF_API.h"
+//#include "GLTF/GLTF_API.h"
 // fatal error C1189: #error:  "You must compile with the /GR switch (RTTI)
 // need to work out why all the following fail build
 // #include "GLTF/GLTF_Loader.h"
@@ -19,8 +19,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <assert.h>
-#include <malloc.h>
+// #include <assert.h>
+// #include <malloc.h>
 
 // a C++ struct to hold all the persistent JS objects we need for a Houdini session:
 // struct PersistentSessionData {
@@ -463,8 +463,8 @@ napi_value init(napi_env env, napi_value exports) {
         ENSURE_SUCCESS( HAPI_CreateThriftNamedPipeSession(&session, "hapi") );
     }
 
-	  // // start up Houdini:
-	  // HAPI_DECL HAPI_Initialize( const HAPI_Session * session,
+	// // start up Houdini:
+	// HAPI_DECL HAPI_Initialize( const HAPI_Session * session,
     //                        const HAPI_cookOptions * cook_options,
     //                        HAPI_Bool use_cooking_thread,
     //                        int cooking_thread_stack_size,
