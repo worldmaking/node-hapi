@@ -13,8 +13,8 @@ const options = {
 	key: fs.readFileSync('certs/server-key.pem'),
 	cert: fs.readFileSync('certs/server-crt.pem'),
 	ca: fs.readFileSync('certs/ca_client-crt.pem'),
-	//crl: fs.readFileSync('certs/ca-crl.pem'), 
-  //requestCert: false, //true, 
+	//crl: fs.readFileSync('certs/ca-crl.pem'),
+  //requestCert: false, //true,
   //rejectUnauthorized: false
 };
 
@@ -70,9 +70,9 @@ app.use(function (req, res, next) {
 //const server = http.createServer(app);
 const server = https.createServer(options, app);
 //const server = https.createServer( app );
-const wss = new WebSocket.Server({ 
+const wss = new WebSocket.Server({
 	server: server,
-	maxPayload: 1024 * 1024, 
+	maxPayload: 1024 * 1024,
 });
 
 function send_all_clients(msg, ignore) {
@@ -100,7 +100,7 @@ wss.on('connection', function(ws, req) {
 	const location = url.parse(req.url, true);
 	// You might use location.query.access_token to authenticate or share sessions
 	// or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-	
+
 	ws.on('error', function (e) {
 		if (e.message === "read ECONNRESET") {
 			// ignore this, client will still emit close event
@@ -114,7 +114,7 @@ wss.on('connection', function(ws, req) {
 		console.log("connection closed");
         console.log("server has "+wss.clients.size+" connected clients");
 	});
-	
+
 	// respond to any messages from the client:
 	ws.on('message', function(msg) {
 		if (msg instanceof Buffer) {
@@ -128,27 +128,27 @@ wss.on('connection', function(ws, req) {
 
 			if (msg == "getData") {
 				// reply:
-				
+
 				console.log("hi")
 
 				//ws.send(JSON.stringify({ cmd:"newData", state: manus.state }))
 				//ws.send(JSON.stringify({ cmd: "trackingData", state:getTrackingData() }))
-			
+
 			} else if (msg == "sendHaptics") {
-		
+
 				console.log("hi")
 
 			} else if (msg == "loadOBJ") {
 
 				//console.log("loading OBJ...");
-				
+
 				try {
 					//passsing directoryPath and callback function
 					fs.readdir(directoryPath, function (err, files) {
 							//handling error
 							if (err) {
 									return console.log('Unable to scan directory: ' + err);
-							} 
+							}
 							//listing all files using forEach
 							files.forEach(function (file) {
 									// Do whatever you want to do with the file
@@ -159,34 +159,34 @@ wss.on('connection', function(ws, req) {
 												hapi.state.file = file;//'triangle.json'
 												//console.log(hapi.state.file);
 												ws.send(JSON.stringify({ cmd: "load", state: hapi.state }))
-														
+
 										} catch (error) {
 											console.log(`error: `, error);
 										}
 									} else {
-										hapi.state.file = {};												
+										hapi.state.file = {};
 										//console.log(hapi.state.file);
 									}
 							});
 					});
 				} catch( error ) {
 					console.log( `nothing to find: ${error}` );
-				}  
-		
+				}
+
 			} else {
 
 				console.log("received message from client:", id, msg);
 			}
 		}
 	});
-	
+
 	// Example sending binary:
 	const array = new Float32Array(5);
 	for (var i = 0; i < array.length; ++i) {
 		array[i] = i / 2;
 	}
     ws.send(array);
-    
+
     send_all_clients("hi")
 });
 

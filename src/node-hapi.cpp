@@ -1,12 +1,12 @@
 #include "node-api-helpers.h"
 
 #include "HAPI/HAPI.h"
-// #include "HAPI/HAPI_API.h"
-// #include "HAPI/HAPI_Common.h"
-// #include "HAPI/HAPI_Helpers.h"
+#include "HAPI/HAPI_API.h"
+#include "HAPI/HAPI_Common.h"
+#include "HAPI/HAPI_Helpers.h"
 #include "HAPI/HAPI_Version.h"
 
-//#include "GLTF/GLTF_API.h"
+#include "GLTF/GLTF_API.h"
 // fatal error C1189: #error:  "You must compile with the /GR switch (RTTI)
 // need to work out why all the following fail build
 // #include "GLTF/GLTF_Loader.h"
@@ -19,8 +19,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-// #include <assert.h>
-// #include <malloc.h>
+#include <assert.h>
+#include <malloc.h>
 
 // a C++ struct to hold all the persistent JS objects we need for a Houdini session:
 // struct PersistentSessionData {
@@ -52,7 +52,7 @@ static std::string getLastError();
 static std::string getLastCookError();
 static std::string getString( HAPI_StringHandle stringHandle );
 static void printCompleteNodeInfo( HAPI_Session &session, HAPI_NodeId nodeId,
-                   HAPI_AssetInfo &assetInfo);
+                HAPI_AssetInfo &assetInfo);
 static void processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
                 HAPI_NodeId objectNode, HAPI_NodeId geoNode,
                 HAPI_PartId partId );
@@ -101,7 +101,7 @@ static std::string getString( HAPI_StringHandle stringHandle ) {
 
 static void
 printCompleteNodeInfo( HAPI_Session &session, HAPI_NodeId nodeId,
-               HAPI_AssetInfo &assetInfo )
+                HAPI_AssetInfo &assetInfo )
 {
     HAPI_NodeInfo nodeInfo;
     ENSURE_SUCCESS( HAPI_GetNodeInfo ( &session, nodeId, &nodeInfo ) );
@@ -248,7 +248,7 @@ processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
 HAPI_Session session;
 HAPI_CookOptions cookOptions;
 
-napi_value test(napi_env env, napi_callback_info info) {	
+napi_value test(napi_env env, napi_callback_info info) {
 	napi_status status = napi_ok;
 	napi_value result = nullptr;
 
@@ -265,13 +265,13 @@ napi_value test(napi_env env, napi_callback_info info) {
     while (cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS);
     ENSURE_SUCCESS( cookResult );
     ENSURE_COOK_SUCCESS( cookStatus );
-    
+
     HAPI_PartInfo newNodePart = HAPI_PartInfo_Create();
     newNodePart.type = HAPI_PARTTYPE_MESH;
     newNodePart.faceCount = 1;
     newNodePart.vertexCount = 3;
     newNodePart.pointCount = 3;
-    
+
     ENSURE_SUCCESS( HAPI_SetPartInfo( &session, newNode, 0, &newNodePart ) );
     HAPI_AttributeInfo newNodePointInfo = HAPI_AttributeInfo_Create();
     newNodePointInfo.count = 3;
@@ -297,13 +297,13 @@ napi_value test(napi_env env, napi_callback_info info) {
     newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
     ENSURE_SUCCESS( HAPI_AddAttribute( &session, newNode, 0, "strData", &newNodePointInfo ) );
     ENSURE_SUCCESS( HAPI_SetAttributeStringData( &session, newNode, 0, "strData", &newNodePointInfo, (const char ** ) strs, 0, 3 ) );
-    
+
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
-    
+
     ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );
     ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/triangle.obj" ) );
-    	
-    
+
+
 	HAPI_Cleanup( &session );
     // return 0;
 
@@ -312,11 +312,11 @@ napi_value test(napi_env env, napi_callback_info info) {
 
 napi_value testPoint(napi_env env, napi_callback_info info) {
 	napi_status status = napi_ok;
-	napi_value result = nullptr;	
+	napi_value result = nullptr;
 
 		// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html#HAPI_FullSourceSamples_AssetInputs_MarshallingPointClouds
     HAPI_NodeId newNode;
-    
+
     ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Point Cloud" ) );
     ENSURE_SUCCESS( HAPI_CookNode ( &session, newNode, &cookOptions ) );
     int cookStatus;
@@ -328,18 +328,18 @@ napi_value testPoint(napi_env env, napi_callback_info info) {
     while (cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS);
     ENSURE_SUCCESS( cookResult );
     ENSURE_COOK_SUCCESS( cookStatus );
-    
+
     HAPI_GeoInfo newNodeGeoInfo;
     ENSURE_SUCCESS( HAPI_GetDisplayGeoInfo( &session, newNode, &newNodeGeoInfo ) );
     HAPI_NodeId sopNodeId = newNodeGeoInfo.nodeId;
-    
+
     // Creating the triangle vertices
     HAPI_PartInfo newNodePart = HAPI_PartInfo_Create();
     newNodePart.type = HAPI_PARTTYPE_MESH;
     newNodePart.faceCount = 0;
     newNodePart.vertexCount = 0;
     newNodePart.pointCount = 8;
-    
+
     ENSURE_SUCCESS( HAPI_SetPartInfo( &session, sopNodeId, 0, &newNodePart ) );
     HAPI_AttributeInfo newNodePointInfo = HAPI_AttributeInfo_Create();
     newNodePointInfo.count = 8;
@@ -349,16 +349,16 @@ napi_value testPoint(napi_env env, napi_callback_info info) {
     newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
     ENSURE_SUCCESS( HAPI_AddAttribute( &session, sopNodeId, 0, "P", &newNodePointInfo ) );
     float positions[ 24 ] = { 0.0f, 0.0f, 0.0f,
-                  1.0f, 0.0f, 0.0f,
-                  1.0f, 0.0f, 1.0f,
-                  0.0f, 0.0f, 1.0f,
-                  0.0f, 1.0f, 0.0f,
-                  1.0f, 1.0f, 0.0f,
-                  1.0f, 1.0f, 1.0f,
-                  0.0f, 1.0f, 1.0f};
+                    1.0f, 0.0f, 0.0f,
+                    1.0f, 0.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f,
+                    0.0f, 1.0f, 0.0f,
+                    1.0f, 1.0f, 0.0f,
+                    1.0f, 1.0f, 1.0f,
+                    0.0f, 1.0f, 1.0f};
     ENSURE_SUCCESS( HAPI_SetAttributeFloatData( &session, sopNodeId, 0, "P", &newNodePointInfo, positions, 0, 8 ) );
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, sopNodeId ) );
-    
+
     ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/point_cloud.hip", false ) );
     ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/point_cloud.obj" ) );
 
@@ -382,7 +382,7 @@ napi_value load(napi_env env, napi_callback_info info) {
         std::cout << "Should only be loading 1 asset here" << std::endl;
         exit ( 1 );
     }
-    
+
     HAPI_StringHandle assetSh;
     ENSURE_SUCCESS( HAPI_GetAvailableAssets( &session, assetLibId, &assetSh, assetCount ) );
     std::string assetName = getString( assetSh );
@@ -398,15 +398,15 @@ napi_value load(napi_env env, napi_callback_info info) {
     while ( cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS );
     ENSURE_SUCCESS( cookResult );
     ENSURE_COOK_SUCCESS( cookStatus );
-    
+
     HAPI_AssetInfo assetInfo;
     ENSURE_SUCCESS( HAPI_GetAssetInfo( &session, nodeId, &assetInfo ) );
     printCompleteNodeInfo( session, nodeId, assetInfo );
-    
+
     //char in;
     //std::cout << "Press keys to exit." << std::endl;
     //std::cin >> in;
-    
+
     // HAPI_Cleanup( &session );
     // return 0;
 
@@ -441,7 +441,7 @@ napi_value init(napi_env env, napi_value exports) {
 	HAPI_GetEnvInt(HAPI_ENVINT_VERSION_HOUDINI_MAJOR, &major);
 	HAPI_GetEnvInt(HAPI_ENVINT_VERSION_HOUDINI_MINOR, &minor);
 	HAPI_GetEnvInt(HAPI_ENVINT_VERSION_HOUDINI_BUILD, &rev);
-	printf("Node-HAPI built for Houdini version %d.%d.%d\n", major, minor, rev);	
+	printf("Node-HAPI built for Houdini version %d.%d.%d\n", major, minor, rev);
 
 	bool bUseInProcess = true;
 	bool bUseCookingThread = true;
@@ -456,7 +456,7 @@ napi_value init(napi_env env, napi_value exports) {
         HAPI_ThriftServerOptions serverOptions{ 0 };
         serverOptions.autoClose = true;
         serverOptions.timeoutMs = 3000.0f;
-        
+
         // Start a HARS named-pipe server named "hapi"
         ENSURE_SUCCESS( HAPI_StartThriftNamedPipeServer(&serverOptions, "hapi", nullptr) );
         // and create a new HAPI session to use that server
@@ -484,7 +484,7 @@ napi_value init(napi_env env, napi_value exports) {
 		{ "test", 0, test, 0, 0, 0, napi_default, 0 },
 		{ "testPoint", 0, testPoint, 0, 0, 0, napi_default, 0 },
         { "load", 0, load, 0, 0, 0, napi_default, 0 },
-		
+
 	};
 	status = napi_define_properties(env, exports, sizeof(properties)/sizeof(napi_property_descriptor), properties);
 	//assert(status == napi_ok);

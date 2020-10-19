@@ -27,6 +27,7 @@
   "dependencies": {
     "bindings": "^1.5.0",
     "bufferutil": "^4.0.1",
+    "core-js": "^3.6.5",
     "esm": "^3.2.25",
     "fs": "0.0.1-security",
     "gl-matrix": "^3.3.0",

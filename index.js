@@ -22,7 +22,7 @@ exports.state = state;
 //requiring path and fs modules
 const path = require('path');
 const fs = require('fs');
-//joining path of directory 
+//joining path of directory
 const directoryPath = path.join(__dirname, 'scenes');
 //const executionPath = path.join();
 
@@ -32,19 +32,19 @@ const { spawnSync, execSync, execFileSync } = require( 'child_process' );
 client.connect(PORT, HOST, function() {
 
   console.log('CONNECTED TO: ' + HOST +':'+ PORT)
-  
+
   //let session = hapi.open({
   // just a quick test to make sure it works
   //client.write(Buffer.from(session.test())
   //session.load();
-    
+
     // GPT will create the kind of data used and sent by these calls in and out of node-hapi.cpp
     console.log('test');
     hapi.test();
     //console.log('testPoint');
     //hapi.testPoint();
     //console.log('load');
-    //hapi.load();    
+    //hapi.load();
 
     // setTimeout(()=>{
     // 	console.log("chao")
@@ -58,7 +58,7 @@ client.connect(PORT, HOST, function() {
           //handling error
           if (err) {
               return console.log('Unable to scan directory: ' + err);
-          } 
+          }
           //listing all files using forEach
           console.log(regEx);
           files.forEach(function (file) {
@@ -72,7 +72,7 @@ client.connect(PORT, HOST, function() {
                 try {
                   //let directoryFile = path.join(directoryPath, 'obj2three.js');
                   //var convert = spawn('node',['-r','esm', directoryFile, file],[{shell: true},  { stdio: ['pipe', 'pipe', 'pipe'] }]);
-                  const cmd = 'node -r esm obj2three.js scenes/' + file; 
+                  const cmd = 'node -r esm obj2three.js scenes/' + file;
                   const convert = execSync(
                     cmd,
                     {
@@ -85,7 +85,7 @@ client.connect(PORT, HOST, function() {
                     //console.log(b);
                     //console.log(f);
                     //state.file[0] = f + '.json';//'load/triangle.json'
-                    
+
                     //console.log(state.file[0]);
                     //path.join(path.basename(file, '.obj'), '.json');
 
@@ -93,12 +93,12 @@ client.connect(PORT, HOST, function() {
                   console.log(`error: `, error);
                 }
 
-              } 
+              }
           });
       });
     } catch( error ) {
       client.write( `file conversion error: ${error}` );
-    }  
+    }
 
 
   })
@@ -119,7 +119,7 @@ client.connect(PORT, HOST, function() {
   })
 
   client.on('error', function(err) {
-      console.log("socket error", err) 
+      console.log("socket error", err)
       //session.close()
       client.disconnect()
       socket.close()

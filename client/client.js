@@ -29,7 +29,7 @@ function write( ...args ) {
   if( msgs.length > 15 ) {
 
     msgs.shift();
-  
+
   }
 
   let msg = args.join( ", " );
@@ -38,7 +38,7 @@ function write( ...args ) {
 
   log.innerText = "";
   log.innerText +=  "Log: \n " + fMsg;
-  
+
   console.log( msg );
 }
 
@@ -53,26 +53,26 @@ function connect_to_server( opt, log ) {
 		reload_on_disconnect: true,
 		socket: null,
   };
-  
+
   self.addr = self.transport + '://' + self.hostname + ':' + self.port;
-	
+
 	let connect = function() {
-  
+
     self.socket = new WebSocket( self.addr, self.protocols );
 		self.socket.binaryType = 'arraybuffer';
     //self.socket.onerror = self.onerror;
-    
+
 		self.socket.onopen = function() {
 
 			log( "websocket connected to " + self.addr );
 			// ...
   
     }
-  
-    self.socket.onmessage = function( e ) { 
-  
+
+    self.socket.onmessage = function( e ) {
+
       if ( e.data instanceof ArrayBuffer ) {
-  
+
         // if (onbuffer) {
 				// 	//onbuffer(e.data, e.data.byteLength);
 				// } else {
@@ -81,64 +81,64 @@ function connect_to_server( opt, log ) {
 
         //}
 
-      } 
+      }
       else {
-  
+
         let msg = e.data;
 				let obj;
-  
+
         try {
-  
+
           obj = JSON.parse( msg );
           if ( obj.cmd == "load" ) {
-  
+
             state = obj.state;
-    
+
           } else {
-            
+
             log( "ws received", msg );
-    
+
           }
-          
+
         } catch( e ) {
 
         }
-  
-			} 
+
+			}
 		}
-  
+
     self.socket.onclose = function( e ) {
-  
+
       self.socket = null;
 
 			setTimeout( function() {
-  
+
         if ( self.reload_on_disconnect ) {
-  
+
           window.location.reload( true );
-  
+
         } else {
-  
+
           log( "websocket reconnecting" );
 
 					connect();
-  
+
         }
-			}, self.reconnect_period );		
-  
+			}, self.reconnect_period );
+
       //if (onclose) onclose(e);
 			log( "websocket disconnected from " + self.addr );
-  
+
     }
 
 		self.send = function( msg ) {
-  
+
       if ( !self.socket ) { console.warn( "socket not yet connected" ); return; }
 			if ( self.socket.readyState != 1 ) { console.warn( "socket not yet ready" ); return; }
 			if ( typeof msg !== "string" ) msg = JSON.stringify( msg );
-  
+
       self.socket.send( msg );
-  
+
     }
 	}
 
@@ -205,12 +205,12 @@ function initialize() {
   //let file = state.file;
 
   let model1, model2, model3;
-  
+
   let p1 = loadModel('load/triangle.json').then(result => {  model1 = result.scene.children[0]; }).catch(err => console.error(err));
   let p2 = loadModel('load/triangle.json').then(result => {  model2 = result.scene.children[0]; }).catch(err => console.error(err));
   let p3 = loadModel('load/triangle.json').then(result => {  model3 = result.scene.children[0]; }).catch(err => console.error(err));
 
-  //if all Promises resolved 
+  //if all Promises resolved
   Promise.all([p1,p2,p3]).then(() => {
     //do something to the model
     model1.position.set(0,0,0);
@@ -221,7 +221,7 @@ function initialize() {
     scene.add(model1);
     scene.add(model2);
     scene.add(model3);
-    
+
     //continue the process
     play();
   });
@@ -236,7 +236,7 @@ function createCamera() {
 }
 
 function createControls() {
-  
+
   controls = new OrbitControls( camera, container );
   controls.target.set( 0, 1.6, 0 );
   controls.update();
@@ -296,14 +296,14 @@ function createRenderer() {
   renderer = new THREE.WebGLRenderer( { antialias: true } );
   //renderer.setSize( container.clientWidth, container.clientHeight );
   renderer.setSize( window.innerWidth, window.innerHeight );
-  
+
   renderer.setPixelRatio( window.devicePixelRatio );
-  
+
   renderer.gammaFactor = 2.2;
   renderer.gammaOutput = true;
 
   renderer.outputEncoding = THREE.sRGBEncoding;
-  
+
   renderer.xr.enabled = true;
 
   container.appendChild( renderer.domElement );
@@ -318,29 +318,29 @@ function setControllers() {
     function onSelectStart() {
 
       this.userData.isSelecting = true;
-  
+
     }
-  
+
     function onSelectEnd() {
-  
+
       this.userData.isSelecting = false;
-  
+
     }
-  
+
     function onSqueezeStart() {
-  
+
       this.userData.isSqueezing = true;
       this.userData.positionAtSqueezeStart = this.position.y;
       this.userData.scaleAtSqueezeStart = this.scale.x;
-  
+
     }
-  
+
     function onSqueezeEnd() {
-  
+
       this.userData.isSqueezing = false;
-  
+
     }
-  
+
     controller1 = renderer.xr.getController( 0 );
     controller1.addEventListener( 'selectstart', onSelectStart );
     controller1.addEventListener( 'selectend', onSelectEnd );
@@ -348,7 +348,7 @@ function setControllers() {
     controller1.addEventListener( 'squeezeend', onSqueezeEnd );
     controller1.userData.painter = painter1;
     scene.add( controller1 );
-  
+
     controller2 = renderer.xr.getController( 1 );
     controller2.addEventListener( 'selectstart', onSelectStart );
     controller2.addEventListener( 'selectend', onSelectEnd );
@@ -356,19 +356,19 @@ function setControllers() {
     controller2.addEventListener( 'squeezeend', onSqueezeEnd );
     controller2.userData.painter = painter2;
     scene.add( controller2 );
-  
+
     //
-  
+
     let geometry = new THREE.CylinderBufferGeometry( 0.01, 0.02, 0.08, 5 );
     geometry.rotateX( - Math.PI / 2 );
     let material = new THREE.MeshStandardMaterial( { flatShading: true } );
     let mesh = new THREE.Mesh( geometry, material );
-  
+
     let pivot = new THREE.Mesh( new THREE.IcosahedronBufferGeometry( 0.01, 2 ) );
     pivot.name = 'pivot';
     pivot.position.z = - 0.05;
     mesh.add( pivot );
-  
+
     controller1.add( mesh.clone() );
     controller2.add( mesh.clone() );
 
@@ -380,7 +380,7 @@ function onWindowResize() {
 
   //camera.aspect = container.clientWidth / container.clientHeight;
   camera.aspect = window.innerWidth / window.innerHeight;
-  
+
   // update the camera's frustum
   camera.updateProjectionMatrix();
 
@@ -390,6 +390,38 @@ function onWindowResize() {
 }
 
 //
+
+let manager = new THREE.LoadingManager();
+manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+
+	console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+
+};
+
+manager.onLoad = function ( ) {
+
+	console.log( 'Loading complete!');
+
+};
+
+manager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+
+	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+
+};
+
+manager.onError = function ( url ) {
+
+	console.log( 'There was an error loading ' + url );
+
+};
+
+let loader = new OBJLoader( manager );
+loader.load( 'file.obj', function ( object ) {
+
+	//
+
+} );
 
 function loadModel(url) {
   return new Promise(resolve => {
@@ -404,21 +436,21 @@ function loadModels_OBJ( f ) { //(file)
   let file = 'load/' + f;
 
   loader.load(
-    
+
     file,
-   
+
     // onLoad callback
     // Here the loaded data is assumed to be an object
     function ( obj ) {
       // Add the loaded object to the scene
       scene.add( obj );
     },
-  
+
     // onProgress callback
     function ( xhr ) {
       //console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
-  
+
     // onError callback
     function ( err ) {
       console.error( 'A load error happened', err );
@@ -429,7 +461,7 @@ function loadModels_OBJ( f ) { //(file)
 }
 
 function exportModels_OBJ() {
-  
+
   const exporter = new OBJExporter();
 
   let result = exporter.parse( scene );
@@ -471,13 +503,13 @@ function checkForScenes() {
   //console.log(state.file[0]);
   //console.log(`client: ${file}`);
   loadModels_OBJ(file);
-  
+
 }
 
 function respondToScenes() {
-  
+
   console.log(`output threejs scene as GLTF to AI check folder`);
-  
+
   exportModels_GLTF();
 
 }
@@ -558,7 +590,7 @@ function render() {
   //checkForScenes();
   //checkForScenes(regEx_HOU);
   //checkForScenes(regEx_GPT);
-  
+
   //respondToScenes();
 
   renderer.render( scene, camera );
