@@ -24,6 +24,15 @@ let msgs = [];
 
 //
 
+const regEx_INI = /(\/*.json)/;
+const regEx_HOU = /(\/*_HOU.json)/;
+const regEx_GPT = /(\/*_GPT.json)/;
+const directoryPath_WAITING = 'data/forLoading/done/'; //dump when done processing
+const directoryPath_THREEJS = 'data/forLoading/THREE/'; //get
+const directoryPath_HOUDINI = 'data/forLoading/HOUDINI/'; //give
+
+//
+
 function write( ...args ) {
 
   if( msgs.length > 15 ) {
@@ -90,7 +99,7 @@ function connect_to_server( opt, log ) {
         try {
 
           obj = JSON.parse( msg );
-          if ( obj.cmd == "load" ) {
+          if ( obj.cmd == "newFile" ) {
 
             state = obj.state;
 
@@ -166,10 +175,6 @@ vec3.set(0,0,0);
 const mixers = [];
 const clock = new THREE.Clock();
 
-const regEx_INI = /(\/*.json)/;
-const regEx_HOU = /(\/*_HOU.json)/;
-const regEx_GPT = /(\/*_GPT.json)/;
-
 //
 //TODO: setup for future
 let arrayCamera;
@@ -180,6 +185,10 @@ let sceneObj = new THREE.Scene();
 let model1, model2, model3;
 let p1, p2, p3;
 let data = null;
+
+let i = 0;
+let j = 0.5;
+let k = -2;
 
 //
 
@@ -420,7 +429,7 @@ function loadModels() {
 
   var v = new THREE.Vector3();
   var f = 'triangle1.obj';
-  var d = 'load/';
+  var d = 'data/forLoading/done/';
   n ++;
   v.set(-1,1,-1);
   console.log(`v1: ${v.x} ${v.y} ${v.z}`);
@@ -428,7 +437,7 @@ function loadModels() {
 
   var v = new THREE.Vector3();
   var f = 'triangle2.obj';
-  var d = 'load/';  
+
   n ++;
   v.set(-1,1.5,-1);
   console.log(`v2: ${v.x} ${v.y} ${v.z}`);
@@ -436,7 +445,7 @@ function loadModels() {
 
   var v = new THREE.Vector3();
   var f = 'triangle3.obj';
-  var d = 'load/';  
+
   n ++;
   v.set(-1,2,-1);
   console.log(`v3: ${v.x} ${v.y} ${v.z}`);
@@ -508,18 +517,38 @@ function exportModels_OBJ() {
 function checkForScenes() {
 
   try{
-    sock.send("loadOBJ");
+    sock.send("fileCheck");
   } catch( e ) {
     write( e );
   }
 
   if ( !state ) return;
+  
+  // var v = new THREE.Vector3();
+  // v.set(-1, 0.5, -1.5);
+  // v.set(-1, 0.5, -1.0);
+  // v.set(-1, 0.5, -0.5);
+  // v.set(-1, 0.5, 0.0);
 
-  let file = state.file;
-  //console.log(state.file[0]);
-  //console.log(`client: ${file}`);
-  loadModels_OBJ(file);
-
+  let z = k+j;
+  let file = state.files;
+  console.log(state.files);
+  console.log(`client: ${file}`);
+  var n = 'dynam_'+ i;
+  var v = new THREE.Vector3();
+  var f = file;
+  var d = directoryPath_THREEJS;
+  v.set(-1, 0.5, z);
+  load( n, f, d, v );
+  // .then( result => {
+  //       try{
+  //         sock.send("doneImport");
+  //       } catch( e ) {
+  //         write( e );
+  //       }
+  //     ;}).catch(err => console.error(err));
+  i++;
+  j+=0.5;
 }
 
 function respondToScenes() {
@@ -580,6 +609,7 @@ function play() {
 function stop() {
 
   renderer.setAnimationLoop( null );
+  console.log('end animation');
 
 }
 
@@ -603,7 +633,7 @@ function render() {
   handleController( controller1 );
   handleController( controller2 );
 
-  //checkForScenes();
+  if ( i <= 4 ) checkForScenes();
   //checkForScenes(regEx_HOU);
   //checkForScenes(regEx_GPT);
 
@@ -611,7 +641,7 @@ function render() {
 
   renderer.render( scene, camera );
 
-  //stop();
+  //if ( i == 4 ) stop();
 
 }
 

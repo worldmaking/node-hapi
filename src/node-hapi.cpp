@@ -573,7 +573,7 @@ napi_value make_OBJ(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
 
     ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );//TODO: use input variable
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "client/load/triangle1.obj" ) );//TODO: use input variable
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "client/data/forLoading/THREE/triangle.obj" ) );//TODO: use input variable
 
 
 	// HAPI_Cleanup( &session );
@@ -587,7 +587,7 @@ napi_value load_hdanc(napi_env env, napi_callback_info info) {
     napi_value result = nullptr;
 
     HAPI_AssetLibraryId assetLibId;
-    ENSURE_SUCCESS( HAPI_LoadAssetLibraryFromFile( &session, "scenes/geometry.hdanc", true, &assetLibId ) );//TODO: use input variable
+    ENSURE_SUCCESS( HAPI_LoadAssetLibraryFromFile( &session, "client/data/forLoading/HOUDINI/geometry.hdanc", true, &assetLibId ) );//TODO: use input variable
     int assetCount;
     ENSURE_SUCCESS( HAPI_GetAvailableAssetCount( &session, assetLibId, &assetCount ) );
     if (assetCount > 1)

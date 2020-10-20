@@ -37,7 +37,7 @@ size_t typedArrayElementSize(napi_typedarray_type ty) {
 		case napi_int16_array:
 		case napi_uint16_array: return 2;
 		case napi_int32_array:
-		case napi_uint32_array: 
+		case napi_uint32_array:
 		case napi_float32_array: return 4;
 		case napi_float64_array: return 8;
 		default: return 0;
@@ -72,7 +72,7 @@ napi_status getPointerAndSize(napi_env env, napi_value &arg, void *& data, size_
 	return status;
 }
 
-template<typename T> 
+template<typename T>
 napi_status getTypedArray(napi_env env, napi_value &arg, T * &value) {
 	napi_valuetype valuetype;
 	napi_status status = napi_typeof(env, arg, &valuetype);
@@ -124,7 +124,7 @@ napi_status getCharacterArray(napi_env env, napi_value &arg, char *& buf) {
 	return status;
 }
 
-napi_status getCharacterArray(napi_env env, napi_value &arg, char *& buf, size_t &len) {
+napi_status getCharacterArrayWithLength(napi_env env, napi_value &arg, char *& buf, size_t &len) {
 	napi_status status = napi_ok;
 	napi_valuetype valuetype;
 	status = napi_typeof(env, arg, &valuetype);

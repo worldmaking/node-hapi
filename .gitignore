@@ -1,6 +1,9 @@
 build/
 ignored/
 backup/
+.vs/
+.vscode/
+backup/
 
 # Logs
 logs
@@ -108,8 +111,16 @@ dist
 .tern-port
 
 # Other
-tips_tricks.txt
-node-api-TESTING.js
-geometry.hip
-geometry.hdanc
+node-api-helpers.h
+src/node-api-TESTING.cpp
+*.hda
+*.hip
+*.hdanc
 triangle_out
+Houdini_Info.txt
+
+client/js/
+client/load/
+
+misc/
+scenes/
