@@ -193,7 +193,7 @@ static void disableUndoCreation() {
 
 static void
 printCompleteNodeInfo( HAPI_Session &session, HAPI_NodeId nodeId,
-                HAPI_AssetInfo &assetInfo )
+                HAPI_AssetInfo &assetInfo ) 
 {
     HAPI_NodeInfo nodeInfo;
     ENSURE_SUCCESS( HAPI_GetNodeInfo ( &session, nodeId, &nodeInfo ) );
@@ -247,6 +247,7 @@ printCompleteNodeInfo( HAPI_Session &session, HAPI_NodeId nodeId,
     
     delete[] objectInfos;
 }
+
 static void
 processFloatAttrib( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
             HAPI_NodeId objectNode, HAPI_NodeId geoNode,
@@ -274,6 +275,7 @@ processFloatAttrib( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
     }
     delete [] attribData;
 }
+
 static void
 processGeoPart( HAPI_Session &session, HAPI_AssetInfo &assetInfo,
         HAPI_NodeId objectNode, HAPI_NodeId geoNode,
@@ -362,160 +364,160 @@ usage(const char *program)
 
 /*  //TODO: commented out while working on JS side
 {
-napi_value import_FBX(napi_env env, napi_callback_info info) {
-	napi_status status = napi_ok;
-	napi_value result = nullptr;
+    napi_value import_FBX(napi_env env, napi_callback_info info) {
+        napi_status status = napi_ok;
+        napi_value result = nullptr;
 
-    // ported from https://www.sidefx.com/docs/hdk/_h_d_k__f_b_x.html
+        // ported from https://www.sidefx.com/docs/hdk/_h_d_k__f_b_x.html
 
-    // Temporarily disable undos.
-    disallowUndos();
+        // Temporarily disable undos.
+        disallowUndos();
 
-    bool do_merge;
-    // Use default settings to import the file.
-    FBX_ImportOptions import_options();
-    // Use default types filter for the import.
-    FBX_ObjectTypeFilter type_filter();
+        bool do_merge;
+        // Use default settings to import the file.
+        FBX_ImportOptions import_options();
+        // Use default types filter for the import.
+        FBX_ObjectTypeFilter type_filter();
 
-    // Create and run the importer
-    FBX_Translator fbx_translator();
+        // Create and run the importer
+        FBX_Translator fbx_translator();
 
-    bool did_succeed = fbx_translator.importScene("test.fbx", do_merge, &import_options, &type_filter);
+        bool did_succeed = fbx_translator.importScene("test.fbx", do_merge, &import_options, &type_filter);
 
-    UI_ErrorType UI_ERROR;
-    UI_ErrorType UI_WARNING;
+        UI_ErrorType UI_ERROR;
+        UI_ErrorType UI_WARNING;
 
-    // See if we have any errors
-    if (fbx_translator.getErrorManager()->getNumItems() > 0)
-    {
-        UI_ErrorType severity;
-        UT_String msg(UT_String ALWAYS_DEEP);
-        // See whether we have any critical errors or whether
-        // all we've got are warnings:
-        if (fbx_translator.getErrorManager()->getDidReportCriticalErrors())
-            severity = UI_ERROR;
-        else
-            severity = UI_WARNING;
-        fbx_translator.getErrorManager()->appendAllErrors(msg);
-        fbx_translator.getErrorManager()->appendAllWarnings(msg);
-        // Open a dialog with warnings/errors
-        SIopenMessageDialog(msg, severity);
-    }
-
-
-    // Re-enable undos.
-    allowUndos();
-
-
-    //HAPI_Cleanup( &session );
-
-	return(status == napi_ok) ? result : nullptr;
-}
-
-napi_value export_FBX(napi_env env, napi_callback_info info) {
-	napi_status status = napi_ok;
-	napi_value result = nullptr;
-
-    // ported from https://www.sidefx.com/docs/hdk/_h_d_k__f_b_x.html
-
-    // Temporarily disable undos.
-    disallowUndos();
-
-    float time;
-    float start_time = 0.0f;
-    float end_time = 0.0f;
-
-
-    // Create the wrapper and the options objects
-    ROP_FBXExporterWrapper fbx_exporter();
-    ROP_FBXExportOptions export_options();
-
-    // Initialize the exporter first
-    bool did_succeed = fbx_exporter.initializeExport("test_out.fbx", start_time, end_time, &export_options);
-    if(!did_succeed)
-        fbx_exporter.getErrorManager()->addError("Could not initialize FBX exporter", true);
-    else
-    {
-        start_time = HAPI_GetTime( &session, &time );
-        // If everything is all right, perform the actual export.
-        fbx_exporter.doExport();
-
-        end_time = HAPI_GetTime( &session, &time );
-
-        // Cleanup and check for errors
-        did_succeed = fbx_exporter.finishExport();
-        if(!did_succeed) {
-            fbx_exporter.getErrorManager()->addError("Could not finalize FBX export", true);
+        // See if we have any errors
+        if (fbx_translator.getErrorManager()->getNumItems() > 0)
+        {
+            UI_ErrorType severity;
+            UT_String msg(UT_String ALWAYS_DEEP);
+            // See whether we have any critical errors or whether
+            // all we've got are warnings:
+            if (fbx_translator.getErrorManager()->getDidReportCriticalErrors())
+                severity = UI_ERROR;
+            else
+                severity = UI_WARNING;
+            fbx_translator.getErrorManager()->appendAllErrors(msg);
+            fbx_translator.getErrorManager()->appendAllWarnings(msg);
+            // Open a dialog with warnings/errors
+            SIopenMessageDialog(msg, severity);
         }
+
+
+        // Re-enable undos.
+        allowUndos();
+
+
+        //HAPI_Cleanup( &session );
+
+        return(status == napi_ok) ? result : nullptr;
     }
 
-    // Re-enable undos.
-    allowUndos();
+    napi_value export_FBX(napi_env env, napi_callback_info info) {
+        napi_status status = napi_ok;
+        napi_value result = nullptr;
+
+        // ported from https://www.sidefx.com/docs/hdk/_h_d_k__f_b_x.html
+
+        // Temporarily disable undos.
+        disallowUndos();
+
+        float time;
+        float start_time = 0.0f;
+        float end_time = 0.0f;
 
 
-    //HAPI_Cleanup( &session );
+        // Create the wrapper and the options objects
+        ROP_FBXExporterWrapper fbx_exporter();
+        ROP_FBXExportOptions export_options();
 
-	return (status == napi_ok) ? result : nullptr;
-}
+        // Initialize the exporter first
+        bool did_succeed = fbx_exporter.initializeExport("test_out.fbx", start_time, end_time, &export_options);
+        if(!did_succeed)
+            fbx_exporter.getErrorManager()->addError("Could not initialize FBX exporter", true);
+        else
+        {
+            start_time = HAPI_GetTime( &session, &time );
+            // If everything is all right, perform the actual export.
+            fbx_exporter.doExport();
 
-napi_value testPoint(napi_env env, napi_callback_info info) {
-	napi_status status = napi_ok;
-	napi_value result = nullptr;
+            end_time = HAPI_GetTime( &session, &time );
 
-		// ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html#HAPI_FullSourceSamples_AssetInputs_MarshallingPointClouds
-    HAPI_NodeId newNode;
+            // Cleanup and check for errors
+            did_succeed = fbx_exporter.finishExport();
+            if(!did_succeed) {
+                fbx_exporter.getErrorManager()->addError("Could not finalize FBX export", true);
+            }
+        }
 
-    ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Point Cloud" ) );//TODO: use input variable
-    ENSURE_SUCCESS( HAPI_CookNode ( &session, newNode, &cookOptions ) );
-    int cookStatus;
-    HAPI_Result cookResult;
-    do
-    {
-        cookResult = HAPI_GetStatus( &session, HAPI_STATUS_COOK_STATE, &cookStatus );
+        // Re-enable undos.
+        allowUndos();
+
+
+        //HAPI_Cleanup( &session );
+
+        return (status == napi_ok) ? result : nullptr;
     }
-    while (cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS);
-    ENSURE_SUCCESS( cookResult );
-    ENSURE_COOK_SUCCESS( cookStatus );
 
-    HAPI_GeoInfo newNodeGeoInfo;
-    ENSURE_SUCCESS( HAPI_GetDisplayGeoInfo( &session, newNode, &newNodeGeoInfo ) );
-    HAPI_NodeId sopNodeId = newNodeGeoInfo.nodeId;
+    napi_value testPoint(napi_env env, napi_callback_info info) {
+        napi_status status = napi_ok;
+        napi_value result = nullptr;
 
-    // Creating the triangle vertices
-    HAPI_PartInfo newNodePart = HAPI_PartInfo_Create();
-    newNodePart.type = HAPI_PARTTYPE_MESH;
-    newNodePart.faceCount = 0;
-    newNodePart.vertexCount = 0;
-    newNodePart.pointCount = 8;
+            // ported from https://www.sidefx.com/docs/hengine/_h_a_p_i__full_source_samples__asset_inputs.html#HAPI_FullSourceSamples_AssetInputs_MarshallingPointClouds
+        HAPI_NodeId newNode;
 
-    ENSURE_SUCCESS( HAPI_SetPartInfo( &session, sopNodeId, 0, &newNodePart ) );
-    HAPI_AttributeInfo newNodePointInfo = HAPI_AttributeInfo_Create();
-    newNodePointInfo.count = 8;
-    newNodePointInfo.tupleSize = 3;
-    newNodePointInfo.exists = true;
-    newNodePointInfo.storage = HAPI_STORAGETYPE_FLOAT;
-    newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
-    ENSURE_SUCCESS( HAPI_AddAttribute( &session, sopNodeId, 0, "P", &newNodePointInfo ) );
-    float positions[ 24 ] = { 0.0f, 0.0f, 0.0f,
-                    1.0f, 0.0f, 0.0f,
-                    1.0f, 0.0f, 1.0f,
-                    0.0f, 0.0f, 1.0f,
-                    0.0f, 1.0f, 0.0f,
-                    1.0f, 1.0f, 0.0f,
-                    1.0f, 1.0f, 1.0f,
-                    0.0f, 1.0f, 1.0f};
-    ENSURE_SUCCESS( HAPI_SetAttributeFloatData( &session, sopNodeId, 0, "P", &newNodePointInfo, positions, 0, 8 ) );
-    ENSURE_SUCCESS( HAPI_CommitGeo( &session, sopNodeId ) );
+        ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Point Cloud" ) );//TODO: use input variable
+        ENSURE_SUCCESS( HAPI_CookNode ( &session, newNode, &cookOptions ) );
+        int cookStatus;
+        HAPI_Result cookResult;
+        do
+        {
+            cookResult = HAPI_GetStatus( &session, HAPI_STATUS_COOK_STATE, &cookStatus );
+        }
+        while (cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS);
+        ENSURE_SUCCESS( cookResult );
+        ENSURE_COOK_SUCCESS( cookStatus );
 
-    ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/point_cloud.hip", false ) );//TODO: use input variable
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/point_cloud.obj" ) );//TODO: use input variable
+        HAPI_GeoInfo newNodeGeoInfo;
+        ENSURE_SUCCESS( HAPI_GetDisplayGeoInfo( &session, newNode, &newNodeGeoInfo ) );
+        HAPI_NodeId sopNodeId = newNodeGeoInfo.nodeId;
 
-    // HAPI_Cleanup( &session );
-    // return 0;
+        // Creating the triangle vertices
+        HAPI_PartInfo newNodePart = HAPI_PartInfo_Create();
+        newNodePart.type = HAPI_PARTTYPE_MESH;
+        newNodePart.faceCount = 0;
+        newNodePart.vertexCount = 0;
+        newNodePart.pointCount = 8;
 
-	return (status == napi_ok) ? result : nullptr;
+        ENSURE_SUCCESS( HAPI_SetPartInfo( &session, sopNodeId, 0, &newNodePart ) );
+        HAPI_AttributeInfo newNodePointInfo = HAPI_AttributeInfo_Create();
+        newNodePointInfo.count = 8;
+        newNodePointInfo.tupleSize = 3;
+        newNodePointInfo.exists = true;
+        newNodePointInfo.storage = HAPI_STORAGETYPE_FLOAT;
+        newNodePointInfo.owner = HAPI_ATTROWNER_POINT;
+        ENSURE_SUCCESS( HAPI_AddAttribute( &session, sopNodeId, 0, "P", &newNodePointInfo ) );
+        float positions[ 24 ] = { 0.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 1.0f, 0.0f,
+                        1.0f, 1.0f, 0.0f,
+                        1.0f, 1.0f, 1.0f,
+                        0.0f, 1.0f, 1.0f};
+        ENSURE_SUCCESS( HAPI_SetAttributeFloatData( &session, sopNodeId, 0, "P", &newNodePointInfo, positions, 0, 8 ) );
+        ENSURE_SUCCESS( HAPI_CommitGeo( &session, sopNodeId ) );
 
-}
+        ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/point_cloud.hip", false ) );//TODO: use input variable
+        ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "scenes/point_cloud.obj" ) );//TODO: use input variable
+
+        // HAPI_Cleanup( &session );
+        // return 0;
+
+        return (status == napi_ok) ? result : nullptr;
+
+    }
 */
 
 napi_value make_OBJ(napi_env env, napi_callback_info info) {
@@ -571,7 +573,7 @@ napi_value make_OBJ(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_CommitGeo( &session, newNode ) );
 
     ENSURE_SUCCESS( HAPI_SaveHIPFile( &session, "scenes/triangle.hip", false ) );//TODO: use input variable
-    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "client/load/triangle.obj" ) );//TODO: use input variable
+    ENSURE_SUCCESS( HAPI_SaveGeoToFile( &session, newNode, "client/load/triangle1.obj" ) );//TODO: use input variable
 
 
 	// HAPI_Cleanup( &session );

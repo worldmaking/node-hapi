@@ -13,7 +13,6 @@ import { OBJLoader } from './js/OBJLoader.js';
 //import { EnterXRButton } from './js/webxr-button.js';
 //let EnterXRButton = new window.XRDeviceButton;
 
-
 //  //*************************************** // SERVER // ********************************************//
 let state = null;
 let sock;
@@ -151,18 +150,18 @@ function connect_to_server( opt, log ) {
 
 //  //************************************** // INITIALIZE // *****************************************//
 let container;
-let camera, scene, renderer;
-let table, floor, grid;
+let camera, controls, scene, renderer;
+let table, floor, grid, box, light, fFx, tl, gui;
 
 let controller1, controller2;
 let painter1, painter2;
-
 let cursor = new THREE.Vector3();
 
-let controls, result;
+let result;
 
 let vec2, vec3, vec4, quat, mat3, mat4;
 vec3 = new THREE.Vector3();
+vec3.set(0,0,0);
 
 const mixers = [];
 const clock = new THREE.Clock();
@@ -180,6 +179,9 @@ let sceneObj = new THREE.Scene();
 
 let model1, model2, model3;
 let p1, p2, p3;
+let data = null;
+
+//
 
 function initialize() {
 
@@ -191,28 +193,21 @@ function initialize() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color( 0x222222 );
 
+  grid = new THREE.GridHelper(10, 10);
+  scene.add(grid);
+  box = new THREE.Box3Helper(new THREE.Box3(), 0x555555);
+  box.visible = false;
+  scene.add(box);
+
   createCamera();
   createControls();
   createLights();
   createBaseScene();
   createRenderer();
   setControllers();
+  //openGui();
+  loadModels();
 
-
-  let f = 'load/triangle1.obj';
-  model1 = loadModels_OBJ( f, vec3.set(-1,2,-1) );
-
-  var vec = new THREE.Vector3();
-  f = 'load/triangle2.obj';
-  vec.clone(vec3).set(0,-1,0);
-  model2 = loadModels_OBJ( f, vec );
-  
-  var vec = new THREE.Vector3();
-  f = 'load/triangle3.obj';
-  vec.clone(vec3).set(-3,4,2);
-  model3 = loadModels_OBJ( f, vec );
-
-  
   //
 
   try {
@@ -225,6 +220,8 @@ function initialize() {
 
 }
 
+//
+
 function createCamera() {
 
   camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 50 );
@@ -234,7 +231,7 @@ function createCamera() {
 
 function createControls() {
 
-  controls = new OrbitControls( camera, container );
+  controls = new OrbitControls( camera, container ); //container
   controls.target.set( 0, 1.6, 0 );
   controls.update();
 
@@ -304,6 +301,7 @@ function createRenderer() {
   renderer.xr.enabled = true;
 
   container.appendChild( renderer.domElement );
+  //document.body.appendChild( renderer.domElement );
   document.body.appendChild( VRButton.createButton( renderer ) );
   //document.body.appendChild( EnterXRButton.createButton( renderer ) );
 
@@ -386,33 +384,87 @@ function onWindowResize() {
 
 }
 
-//
+function openGui() {
 
-function loadModel(url) {
-  console.log('loading...');
-  return new Promise(resolve => {
-    new OBJLoader().load(url, resolve)
-  });
+  // gui
+  gui = new dat.GUI();
+  var guiProxy = { background: "#"+scene.background.getHexString() };
+  var fScene = gui.addFolder("Scene");
+  fScene.open();
+  fScene.add(grid, "visible").name("Display Grid");
+  fScene.add(box, "visible").name("Display BBox");
+  fScene.add(light, "intensity", 0, 1).name("Light Intensity");
+  fScene.addColor(guiProxy, "background").name("Background").onChange(() =>
+    scene.background.set(guiProxy.background));
+  fFx;
+
+  // timeline
+  tl = new dat.GUI({autoPlace: false, closeOnTop: true});
+  var tlProxy = { val: 0 };
+  tl.domElement.id = "tl_gui";
+  timeline.appendChild(tl.domElement);
+  tlController = tl.add(tlProxy, "val", 0, 1).name("Frame").listen().onChange(function(v) {
+    data.fframe = v;
+  }); 
+
 }
 
-function loadModels_OBJ( f, vec ) { //(file)
+//
+
+function loadModels() {
+
+  let n = 22
+  // let vec = new THREE.Vector3();
+  // vec.set(1,1,1);
+  // console.log(`${vec.x} ${vec.y} ${vec.z}`)
+
+  var v = new THREE.Vector3();
+  var f = 'triangle1.obj';
+  var d = 'load/';
+  n ++;
+  v.set(-1,1,-1);
+  console.log(`v1: ${v.x} ${v.y} ${v.z}`);
+  load( n, f, d, v );
+
+  var v = new THREE.Vector3();
+  var f = 'triangle2.obj';
+  var d = 'load/';  
+  n ++;
+  v.set(-1,1.5,-1);
+  console.log(`v2: ${v.x} ${v.y} ${v.z}`);
+  load( n, f, d, v );
+
+  var v = new THREE.Vector3();
+  var f = 'triangle3.obj';
+  var d = 'load/';  
+  n ++;
+  v.set(-1,2,-1);
+  console.log(`v3: ${v.x} ${v.y} ${v.z}`);
+  load( n, f, d, v );
+
+}
+
+function load( n, f, d, v ) { //name, file, dir
+  let modelName = 'TEST_' + n; //name
+  //let f = 'triangle1.obj'; //file
+  //let d = 'load/'; // dir
+  let l = d + f;
+  //let vec = v;
   // file to be an array? load multiple ?
-  const loader = new OBJLoader();
+  let loader = new OBJLoader();
+  loader.name = modelName
   //let file = 'load/' + f;
-  let mat = THREE.DoubleSide;
   loader.load(
-
-    f,
-
+    l,
     // onLoad callback
     // Here the loaded data is assumed to be an object
     function ( obj ) {
       // Add the loaded object to the scene
-      console.log(`adding.. not yet, vecLoad:, ${vec.x}, ${vec.y}, ${vec.z}`);
+      console.log(`${modelName} : ${loader.name} adding.. not yet, vecLoad:, ${v.x}, ${v.y}, ${v.z}`);
 
-      obj.translateX(vec.getComponent(0));
-      obj.translateY(vec.getComponent(1));
-      obj.translateZ(vec.getComponent(2));
+      obj.translateX(v.getComponent(0));
+      obj.translateY(v.getComponent(1));
+      obj.translateZ(v.getComponent(2));
 
       scene.add( obj );
     },
@@ -425,9 +477,17 @@ function loadModels_OBJ( f, vec ) { //(file)
     // onError callback
     function ( err ) {
       console.error( 'A load error happened', err );
-    }
-  
+    },
+
+    // onMtl callback
+    // function ( mtl ) {
+    //   console.log('mtl');
+    // }
+
   );
+  //loader.setModelName( modelName );
+  //loader.setLogging( true, true );
+  //loader.setMaterials(;)
 
 }
 

@@ -13,6 +13,9 @@ const assert = require("assert");
 const express = require('express');
 const WebSocket = require('ws');
 
+// const { JSDOM } = require( "jsdom" );
+// const { window } = new JSDOM( "" );
+// const $ = require( "jquery" )( window );
 const regEx = /(\/*e.json)/;
 const directoryPath = path.join(__dirname, 'client/load');
 

@@ -22,51 +22,51 @@ client.connect(PORT, HOST, function() {
 
   console.log('CONNECTED TO: ' + HOST +':'+ PORT);
 
-    // GPT will create the kind of data used and sent by these calls in and out of node-hapi.cpp
-    console.log('test');
+  // GPT will create the kind of data used and sent by these calls in and out of node-hapi.cpp
+  console.log('test');
 
-    //TODO: make one import and one export after testing FBX
-    //for now "make" an object/scene and save as .hip .obj .FBX
-    //TODO: use pass-in for declaring what ext type
+  //TODO: make one import and one export after testing FBX
+  //for now "make" an object/scene and save as .hip .obj .FBX
+  //TODO: use pass-in for declaring what ext type
 
-    //hapi.make_OBJ();
-    //hapi.load_hdanc();
-    
-    //hapi.import_FBX(); //TODO: commented out while working on JS side
-    //hapi.export_FBX(); //TODO: commented out while working on JS side
+  hapi.make_OBJ();
+  hapi.load_hdanc();
+  
+  //hapi.import_FBX(); //TODO: commented out while working on JS side
+  //hapi.export_FBX(); //TODO: commented out while working on JS side
 
-    //console.log('testPoint');
-    //hapi.testPoint(); //TODO: commented out while working on JS side
-    // setTimeout(()=>{
-    // 	console.log("chao")
-    // }, 100000)
+  //console.log('testPoint');
+  //hapi.testPoint(); //TODO: commented out while working on JS side
+  // setTimeout(()=>{
+  // 	console.log("chao")
+  // }, 100000)
 
 })
 
-  client.on('data', function(data) {
+client.on('data', function(data) {
 
-      console.log('on "DATA":', typeof data, data.byteLength, data.byteOffset, data)
+    console.log('on "DATA":', typeof data, data.byteLength, data.byteOffset, data)
 
-      // let pkt = data.buffer
-      // session.process(pkt)
-      // console.log('NODE: after process data.buffer')
+    // let pkt = data.buffer
+    // session.process(pkt)
+    // console.log('NODE: after process data.buffer')
 
-  })
+})
 
-  client.on('close', function() {
-      //session.close()
-      console.log('session.close | Connection closed')
-  })
+client.on('close', function() {
+    //session.close()
+    console.log('session.close | Connection closed')
+})
 
-  client.on('error', function(err) {
-      console.log("socket error", err)
-      //session.close()
-      client.disconnect()
-      socket.close()
-      // disconnect client & session.close() ?
-  })
+client.on('error', function(err) {
+    console.log("socket error", err)
+    //session.close()
+    client.disconnect()
+    socket.close()
+    // disconnect client & session.close() ?
+})
 
-  console.log("ok")
-  //client.write(Buffer.from(session.handshake(1)))
+console.log("ok")
+//client.write(Buffer.from(session.handshake(1)))
 
-  //console.log(exports.state);
+//console.log(exports.state);
