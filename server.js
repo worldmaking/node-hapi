@@ -16,8 +16,12 @@ const WebSocket = require('ws');
 // const { JSDOM } = require( "jsdom" );
 // const { window } = new JSDOM( "" );
 // const $ = require( "jquery" )( window );
-const regEx = /(\/*e.json)/;
-const directoryPath = path.join(__dirname, 'client/load');
+//const regEx = /(\/dynamic*)/;
+const directoryPath_WAITING = path.join(__dirname, 'client/data/forLoading/done/'); //dump when done processing
+const directoryPath_THREEJS = path.join(__dirname, 'client/data/forLoading/THREE/'); //alert if new
+const directoryPath_HOUDINI = path.join(__dirname, 'client/data/forLoading/HOUDINI/'); //alert if new
+
+console.log(directoryPath_THREEJS);
 
 const project_path = process.cwd();
 const server_path = __dirname;
@@ -132,50 +136,84 @@ wss.on('connection', function(ws, req) {
 			if (msg == "getData") {
 				// reply:
 
-				console.log("hi")
+				console.log("hi");
 
 				//ws.send(JSON.stringify({ cmd:"newData", state: manus.state }))
 				//ws.send(JSON.stringify({ cmd: "trackingData", state:getTrackingData() }))
 
 			} else if (msg == "sendHaptics") {
 
-				console.log("hi")
+				console.log("hi");
+				//ws.send(JSON.stringify({ cmd:"newData", state: haptics.state }))
+				//ws.send(JSON.stringify({ cmd: "trackingData", state:getHapticsData() }))
 
-			} else if (msg == "loadOBJ") {
+			} else if (msg == "fileCheck") {
 
-				//console.log("loading OBJ...");
+				console.log("SERVER SEES REQUEST FOR FILE CHECK");
+				let regEx = /(\/*.obj)/;
 
 				try {
-					//passing directoryPath and callback function
-					fs.readdir(directoryPath, function (err, files) {
-							//handling error
-							if (err) {
-									return console.log('Unable to scan directory: ' + err);
+
+					fs.readdir(directoryPath_THREEJS, function (err, files) {
+
+						if (err) {
+							return console.log('Unable to scan directory: ' + err);
+						}
+
+						console.log(regEx);
+
+						files.forEach(function (file) {
+							
+							//console.log(file);
+							let match = file.match(regEx);
+
+							if ( match ) {
+
+								let b = path.basename(file, '.obj');
+								let f = path.join('THREE', path.basename(file, '.obj'));
+
+								try {
+
+										hapi.state.files = file;
+										console.log(hapi.state.file);
+										ws.send(JSON.stringify({ cmd: "newFile", state: hapi.state }));
+
+								} catch (error) {
+
+									console.log(`error: `, error);
+
+								}
+							} else {
+
+								//console.log('no match');
+								//hapi.state.files = {};
+
 							}
-							//listing all files using forEach
-							files.forEach(function (file) {
-									// Do whatever you want to do with the file
-									let match = file.match(regEx);
-									if ( match ) {
-										try {
 
-												hapi.state.file = file;//'triangle.json'
-												//console.log(hapi.state.file);
-												ws.send(JSON.stringify({ cmd: "load", state: hapi.state }))
+						});
 
-										} catch (error) {
-											console.log(`error: `, error);
-										}
-									} else {
-										hapi.state.file = {};
-										//console.log(hapi.state.file);
-									}
-							});
 					});
+
 				} catch( error ) {
-					console.log( `nothing to find: ${error}` );
+					client.write( `file conversion error: ${error}` );
 				}
 
+			} else if (msg == "doneImport") {
+
+				console.log(`\nattempting to moving file out of directory`, file);
+				// try {
+				// 	const cmd = 'node -r esm obj2three.js scenes/' + file;
+				// 	const convert = execSync(
+				// 		cmd,
+				// 		{
+				// 			//cwd: 'node-hapi/',
+				// 			stdio: ['pipe', 'pipe', 'pipe']
+				// 		});
+				// 		state.file = convert;
+				// } catch (error) {
+				// 	console.log(`error: `, error);
+				// }
+			
 			} else {
 				console.log("received message from client:", id, msg);
 			}
