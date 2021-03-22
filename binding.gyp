@@ -9,7 +9,7 @@
 			'conditions': [
         ['OS=="win"', {
 					'variables': {
-						'HFS': 'C:/Program Files/Side Effects Software/Houdini 18.0.597'
+						'HFS': 'C:/Program Files/Side Effects Software/Houdini 18.5.499'
 					},
 					'include_dirs': [
 						'<(HFS)/toolkit/include/'
@@ -41,7 +41,7 @@
 						{
 							'destination': './build/Release/',
 							'files': [
-								"<!@(node -p \"require('fs').readdirSync('C:/Program Files/Side Effects Software/Houdini 18.0.499/bin').filter(f=>f.endsWith('.dll')).map(f=>`'C:/Program Files/Side Effects Software/Houdini 18.0.499/bin/${f}'`).join(' ')\")"
+								"<!@(node -p \"require('fs').readdirSync('C:/Program Files/Side Effects Software/Houdini 18.5.499/bin').filter(f=>f.endsWith('.dll')).map(f=>`'C:/Program Files/Side Effects Software/Houdini 18.5.499/bin/${f}'`).join(' ')\")"
 							]
 						}
 					]

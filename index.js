@@ -1,4 +1,4 @@
-const HFS = 'C:\\Program Files\\Side Effects Software\\Houdini 18.0.597';
+const HFS = 'C:\\Program Files\\Side Effects Software\\Houdini 18.5.499';
 // this is necessary in order that the module can find the Houdini dll libraries from the place it expects to:
 process.env.PATH = `${HFS}\\bin;${process.env.PATH}`;
 process.env.HFS = HFS;

@@ -163,7 +163,7 @@ wss.on('connection', function(ws, req) {
 						console.log(regEx);
 
 						files.forEach(function (file) {
-							
+
 							//console.log(file);
 							let match = file.match(regEx);
 
@@ -213,7 +213,7 @@ wss.on('connection', function(ws, req) {
 				// } catch (error) {
 				// 	console.log(`error: `, error);
 				// }
-			
+
 			} else {
 				console.log("received message from client:", id, msg);
 			}

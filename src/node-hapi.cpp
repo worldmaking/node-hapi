@@ -690,6 +690,7 @@ napi_value init(napi_env env, napi_value exports) {
 	cookOptions = HAPI_CookOptions_Create();
 	ENSURE_SUCCESS( HAPI_Initialize(&session, &cookOptions, bUseCookingThread, -1, nullptr, nullptr, nullptr, nullptr, nullptr));
 
+
 	// add handler to clean it up:
 	napi_add_env_cleanup_hook(env, sessionCleanup, (void *)&session);
 
