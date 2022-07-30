@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon server.js --ignore 'scenes/'",
     "install": "node-gyp rebuild",
-    "postinstall": "node test.js"
+    "postinstall": "npm start"
   },
   "gypfile": true,
   "repository": {
@@ -15,7 +16,8 @@
   "keywords": [
     "node.js",
     "houdini",
-    "engine"
+    "engine",
+    "Side FX"
   ],
   "author": "Alice Lab @ Yorku.ca",
   "license": "ISC",
@@ -24,6 +26,30 @@
   },
   "homepage": "https://github.com/worldmaking/node-hapi#readme",
   "dependencies": {
-    "bindings": "^1.5.0"
+    "bindings": "^1.5.0",
+    "bufferutil": "^4.0.1",
+    "canvas": "^2.6.1",
+    "core-js": "^3.6.5",
+    "esm": "^3.2.25",
+    "fs": "0.0.1-security",
+    "gl-matrix": "^3.3.0",
+    "jquery": "^3.5.1",
+    "jsdom": "^16.4.0",
+    "lodash": "^4.17.20",
+    "nan": "^2.14.2",
+    "node": "^14.14.0",
+    "node-api": "0.0.1",
+    "node-gyp": "^7.1.2",
+    "nodemon": "^2.0.6",
+    "path": "^0.12.7",
+    "promise": "^8.1.0",
+    "python": "0.0.4",
+    "python2": "0.0.1",
+    "require": "^2.4.20",
+    "stats.js": "^0.17.0",
+    "three-fbx-loader": "^1.0.3",
+    "utf": "^1.0.0",
+    "utf-8-validate": "^5.0.2",
+    "ws": "^7.3.1"
   }
 }

@@ -1,5 +1,9 @@
 build/
 ignored/
+backup/
+.vs/
+.vscode/
+backup/
 
 # Logs
 logs
@@ -105,3 +109,18 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Other
+node-api-helpers.h
+src/node-api-TESTING.cpp
+*.hda
+*.hip
+*.hdanc
+triangle_out
+Houdini_Info.txt
+
+client/js/
+client/load/
+
+misc/
+scenes/
