@@ -58,10 +58,11 @@ napi_value test(napi_env env, napi_callback_info info) {
     ENSURE_SUCCESS( HAPI_CreateInputNode( &session, &newNode, "Triangle" ) );
     ENSURE_SUCCESS( HAPI_CookNode ( &session, newNode, &cookoptions ) );
     int cookStatus;
+
+	// this is a blocking call, while looping until the cook result is success
     HAPI_Result cookResult;
-    do
-    {
-    cookResult = HAPI_GetStatus( &session, HAPI_STATUS_COOK_STATE, &cookStatus );
+    do {
+    	cookResult = HAPI_GetStatus( &session, HAPI_STATUS_COOK_STATE, &cookStatus );
     }
     while (cookStatus > HAPI_STATE_MAX_READY_STATE && cookResult == HAPI_RESULT_SUCCESS);
     ENSURE_SUCCESS( cookResult );
